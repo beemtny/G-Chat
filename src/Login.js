@@ -5,7 +5,7 @@ const FormPage = () => {
   return (
     <MDBContainer >
       <MDBRow>
-        <MDBCol md="11" >
+        <MDBCol className="mt-4" >
           <form>
             <p className="h4 text-center mb-4">ORKD</p>
             <label htmlFor="Username" className="grey-text">
