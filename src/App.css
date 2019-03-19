@@ -40,3 +40,10 @@
   font-size: 50px;
   padding: 8px 0px 8px 25px;
 }
+
+.login {
+  border: 1px solid rgba(128, 128, 128, 0);
+  border-radius: 15px;
+  box-shadow: 5px 3px 20px rgba(0, 0, 0, 0.158);
+  padding: 100px 60px 100px 60px;
+}
