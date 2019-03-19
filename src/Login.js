@@ -26,6 +26,7 @@ export default class Login extends Component {
     e.preventDefault();
     console.log(this.state.userID);
     console.log(this.state.pass);
+    return this.props.history.push("/chat");
   };
 
   render() {
