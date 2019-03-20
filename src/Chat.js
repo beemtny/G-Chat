@@ -178,7 +178,7 @@ export default class Chat extends Component {
             <form className="input" onSubmit={e => this.submitMessage(e)}>
               <input type="text" ref="msg" />
               <input type="submit" value="Submit" />
-              <input type="leavegroup" value="LeaveGroup" />
+              <input type="leavegroup" value="Leave Group" />
             </form>
           </div>{" "}
         </div>
