@@ -71,8 +71,8 @@ export default class Chat extends Component {
   }
 
   componentWillMount() {
-    console.log("willMount");
-    console.log(window.localStorage.getItem("userID"));
+    let user = window.localStorage.getItem("userID");
+    this.setState({ userID: user }, () => console.log(this.state.userID));
   }
   //Scroll ลง
 
@@ -136,7 +136,7 @@ export default class Chat extends Component {
               <div style={{ padding: "30px 0px" }}>
                 <span style={{ fontSize: "12px" }}>username</span>
                 <br />
-                <span style={{ fontSize: "20px" }}>Beemtny</span>
+                <span style={{ fontSize: "20px" }}>{this.state.userID}</span>
               </div>
             </div>
             <div className="col">
@@ -178,7 +178,7 @@ export default class Chat extends Component {
             <form className="input" onSubmit={e => this.submitMessage(e)}>
               <input type="text" ref="msg" />
               <input type="submit" value="Submit" />
-              <input type="leavegroup" value="LeaveGroup"/>
+              <input type="leavegroup" value="LeaveGroup" />
             </form>
           </div>{" "}
         </div>
