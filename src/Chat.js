@@ -79,7 +79,6 @@ submitMessage(e) {
 
   //   var socket = io.connect('http://localohost:3000');
 
->>>>>>> RigtChatbox
   render() {
     const username = "Job";
     const { chats } = this.state;
