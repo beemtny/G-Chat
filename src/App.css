@@ -67,9 +67,9 @@
 
 .groupList {
   width: 100%;
-  max-width: 500px;
-  height: 350px;
-  overflow: auto;
+  height: 400px;
+  overflow-y : scroll;
+  display: inline-block;
 }
 
 ::-webkit-scrollbar {
@@ -97,15 +97,15 @@
 
 .grChar {
   width: 100%;
-  height: 60px;
+  height: auto;
   border-bottom: 1px solid rgba(179, 179, 179, 0.493);
   padding: 10px;
 }
-=======
+
 .chatroom {
   width: 100%;
   height: 100%;
-  background-color: rgba(14, 182, 233, 0.7);
+  background-color: rgba(255, 255, 255, 0.7);
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 0 8px 0 rgba(0,0,0, 0.3);
@@ -113,10 +113,10 @@
 
 .chatroom h3 {
   font-family: 'Pacifico', cursive;
-  background-color: rgba(9, 16, 114, 0.726);
+  background-color: rgba(27, 27, 27, 0.726);
   color: #FFF;
   margin: 0;
-  height: 40px;
+  height: 50px;
   font-size: 20px;
   display: flex;
   align-items: center;
@@ -166,7 +166,7 @@
 .chatroom .input {
   height: 10%;
   width: 100%;
-  background: rgba(30, 188, 228, 0.7);
+  background: rgba(161, 161, 161, 0.274);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -175,7 +175,7 @@
 .chatroom .input input[type="text"] {
   background: rgba(255, 255, 255, 0.5);
   outline: 0;
-  border: 2px solid rgb(32, 13, 209);
+  border: 1px solid rgb(97, 97, 97);
   padding: 0 5px;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -188,7 +188,7 @@
 
 .chatroom .input input[type="submit"] {
   background: transparent;
-  border: 1px solid rgb(26, 8, 194);
+  border: 1px solid rgb(92, 92, 92);
   height: 30px;
   width: 70px;
   font-size: 14px;
@@ -202,4 +202,5 @@
 .chatroom .input input[type="submit"]:hover {
   background: rgb(38, 8, 209);
   color: #FFF;
+  
 }

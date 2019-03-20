@@ -4,6 +4,8 @@ import Client from "./component/Client";
 import Message from './Message.js';
 import ReactDOM from 'react-dom';
 import socketIOClient from 'socket.io-client'
+import GrChat from './component/GrChat'
+import man from './pic/man.svg';
 
 export default class Chat extends Component {
 
@@ -95,7 +97,45 @@ export default class Chat extends Component {
       <div className="boxChat">
         <div className="block-left">
           <div className="header"> Chat </div>
-          <Client />
+          {/* <Client /> */}
+          <div className="row">
+          <div className="col col-3">
+            {" "}
+            <img src={man} className="profile" />{" "}
+          </div>
+          <div className="col">
+            <div style={{ padding: "30px 0px" }}>
+              <span style={{ fontSize: "12px" }}>username</span>
+              <br />
+              <span style={{ fontSize: "20px" }}>Beemtny</span>
+            </div>
+          </div>
+          <div className="col">
+            <div style={{ padding: "35px 20px 0px 0px" }}>
+              <button type="button" class="btn createBTN">
+                create new group
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="groupList">
+          <div className="join">
+            <p className="headGroup">Join Group</p>
+            <GrChat />
+            <GrChat />
+          </div>
+          <div className="list">
+            <p className="headGroup">Group List </p>
+            <GrChat />
+            <GrChat />
+            <GrChat />
+            <GrChat />
+            <GrChat />
+            <GrChat />
+            <GrChat />
+            <GrChat />
+          </div>
+        </div>
         </div>
         <div className="block-right"> <div className="chatroom">
                 <h3>ChatRoom</h3>
