@@ -48,6 +48,60 @@
   padding: 100px 60px 100px 60px;
 }
 
+
+.profile {
+  overflow: auto;
+  width: 70px;
+  margin: 20px 0px 0px 20px;
+}
+
+.col {
+  text-align: center;
+}
+
+.createBTN {
+  border: 1px dashed rgba(128, 128, 128, 0.719);
+  background-color: rgba(179, 179, 179, 0.164);
+  color: gray;
+}
+
+.groupList {
+  width: 100%;
+  max-width: 500px;
+  height: 350px;
+  overflow: auto;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px grey;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.headGroup {
+  font-size: 23px;
+  padding: 5px 20px;
+  background: rgba(179, 179, 179, 0.164);
+  border: 1px solid rgba(179, 179, 179, 0.164);
+}
+
+.grChar {
+  width: 100%;
+  height: 60px;
+  border-bottom: 1px solid rgba(179, 179, 179, 0.493);
+  padding: 10px;
+}
+=======
 .chatroom {
   width: 100%;
   height: 100%;
