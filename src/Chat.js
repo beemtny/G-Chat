@@ -66,7 +66,12 @@ export default class Chat extends Component {
 
   submitMessage(e) {
       e.preventDefault();
-      this.socket.emit('chat', ReactDOM.findDOMNode(this.refs.msg).value)
+      let data = {
+        text: ReactDOM.findDOMNode(this.refs.msg).value,
+        userId: '123456'
+      }
+      this.socket.emit('chat', data)
+      ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
   componentDidMount = () => {
@@ -75,15 +80,13 @@ export default class Chat extends Component {
 
   response = () => {
     //user ปัจจุบันที่ login
-    this.socket.on('new-msg', (msg) => {
+    this.socket.on('new-data', (data) => {
       this.setState({
           chats: this.state.chats.concat([{
               username: "Job",
-              content: <p>{msg}</p>,
+              content: <p>{data.text}</p>,
               img: "https://scontent.fbkk12-3.fna.fbcdn.net/v/t1.0-9/38737612_1929131837146363_6837282696201240576_n.jpg?_nc_cat=102&_nc_eui2=AeHAXKjNSVqYsLNyPhzu6AKUMyIujgbE12osK6lhugNB8dM6XcR2UJN6bwdZqT_2eneGnpy6CQsmlSEfeSd5r6n2OnBmX4MLNz6cDIQeVKcMVg&_nc_ht=scontent.fbkk12-3.fna&oh=0160a70904cd1c4afb3e7a315f7ccacd&oe=5D11651E",
           }])
-      }, () => {
-          ReactDOM.findDOMNode(this.refs.msg).value = "";
       });
     })
   }
