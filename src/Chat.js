@@ -13,6 +13,7 @@ export default class Chat extends Component {
     return (
       <div className="boxChat">
         <div className="block-left">
+          <div className="header"> Chat </div>
           <Client />
         </div>
         <div className="block-right">2</div>
