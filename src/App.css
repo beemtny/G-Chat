@@ -185,7 +185,16 @@
   box-sizing: border-box;
   font-size: 14px;
 }
-
+.chatroom .input input[type="submit"] {
+  background: transparent;
+  border: 1px solid rgb(92, 92, 92);
+  height: 30px;
+  width: 70px;
+  font-size: 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 .chatroom .input input[type="leavegroup"] {
   background: transparent;
   border: 1px solid rgb(92, 92, 92);
