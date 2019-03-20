@@ -85,6 +85,7 @@ submitMessage(e) {
     return (
       <div className="boxChat">
         <div className="block-left">
+          <div className="header"> Chat </div>
           <Client />
         </div>
         <div className="block-right"> <div className="chatroom">
