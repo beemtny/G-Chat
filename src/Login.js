@@ -24,6 +24,7 @@ export default class Login extends Component {
 
   onSubmit = async e => {
     e.preventDefault();
+    window.localStorage.setItem("userID", this.state.userID);
     console.log(this.state.userID);
     console.log(this.state.pass);
     return this.props.history.push("/chat");
