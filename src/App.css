@@ -186,11 +186,11 @@
   font-size: 14px;
 }
 
-.chatroom .input input[type="submit"] {
+.chatroom .input input[type="leavegroup"] {
   background: transparent;
   border: 1px solid rgb(92, 92, 92);
   height: 30px;
-  width: 70px;
+  width: 80px;
   font-size: 14px;
   box-sizing: border-box;
   border-top-right-radius: 5px;
@@ -200,7 +200,10 @@
 }
 
 .chatroom .input input[type="submit"]:hover {
-  background: rgb(38, 8, 209);
+  background: rgb(36, 151, 228);
   color: #FFF;
-  
+}
+.chatroom .input input[type="leavegroup"]:hover {
+  background: rgb(209, 8, 8);
+  color: #FFF;
 }
