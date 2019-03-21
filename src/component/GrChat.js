@@ -8,9 +8,10 @@ export default class GrChat extends Component {
     };
   }
   render() {
+   const {roomDetail, onRoomClick} = this.props;
     return (
       <div className="grChar">
-        gr1
+        {roomDetail.room.roomName}
         {this.state.isJoin ? (
           <button
             type="button"
@@ -22,6 +23,7 @@ export default class GrChat extends Component {
           <button
             type="button"
             className="btn btn-outline-info float-right ml-auto "
+            onClick={() => { onRoomClick(roomDetail.room._id)}}
           >
             Chat
           </button>

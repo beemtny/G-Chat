@@ -5,6 +5,10 @@ import ReactDOM from "react-dom";
 import socketIOClient from "socket.io-client";
 import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
+import axios from "axios";
+
+const apiport = process.env.PORT || 8000;
+const localhost = "http://localhost:" + apiport;
 
 export default class Chat extends Component {
   constructor(props) {
@@ -12,18 +16,21 @@ export default class Chat extends Component {
     // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
     this.socket = socketIOClient('http://localhost:8000')
     this.state = {
-      isJoin: false,
-      userID: "untitle",
-      grName: "GrUntitle",
+      userName: "userName",
+      userID: "userID",
+      grName: "grName",
       isCreate: false,
       chats: [],
-      rooms: [],
+      joinedRooms: [],
+      unJoinRooms: [],
       messages: "",
-      roomId: null
+      roomId: null,
+      currentRoom: null
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.submitMessage = this.submitMessage.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.onRoomClick = this.onRoomClick.bind(this);
   }
 
   handleInputChange = e => {
@@ -41,16 +48,24 @@ export default class Chat extends Component {
     e.preventDefault();
     let data = {
       grName: this.state.grName,
-      userID: this.state.userID
+      userName: this.state.userName
     };
     this.setState({
       rooms: [...this.state.rooms, { grName: this.state.grName, messages: [] }]
     });
+    axios({
+      method: "get",
+      url: localhost + "/api/user/" + this.state.userName
+    }).then(res => {
+      console.log(res.data);
+      return this.props.history.push("/chat");
+    });
+
     console.log(this.state.rooms);
     console.log(data);
     // axios({
     //   method: "get",
-    //   url: localhost + "/api/database/user/" + this.state.userID
+    //   url: localhost + "/api/database/user/" + this.state.userName
     // }).then(res => {
     //   console.log(res.data);
     // });
@@ -58,8 +73,7 @@ export default class Chat extends Component {
   };
 
   componentWillMount() {
-    let user = window.localStorage.getItem("userID");
-    this.setState({ userID: user }, () => console.log(this.state.userID));
+    this.fetch();
   }
   //Scroll ลง
 
@@ -77,6 +91,34 @@ export default class Chat extends Component {
     ).scrollHeight;
   }
 
+  fetch(){
+    let user = window.localStorage.getItem("userName");
+    this.setState({ userName: user }, () => {
+      axios({
+        method: "get",
+        url: localhost + "/api/user/" + this.state.userName
+      })
+        .then(res => {
+          this.setState({ userID: res.data.id });
+        })
+        .then(() => {
+          console.log(this.state.userName);
+          console.log(this.state.userID);
+
+          axios({
+            method: "get",
+            url: localhost + "/api/room/getroomlist/?userID=" + this.state.userID
+          }).then((res) => {
+            console.log(res)
+            const joinedRoom = res.data.data.joinedRoom;
+            this.setState({joinedRooms: joinedRoom})
+            console.log(this.state.joinedRooms)
+          })
+
+        });
+    });
+  }
+
   // submitMessage(e) {
   //     e.preventDefault();
   //     let data = {
@@ -89,7 +131,6 @@ export default class Chat extends Component {
 
   componentDidMount = () => {
     this.response();
-    this.onJoinRoom()
   };
 
   response = () => {
@@ -100,7 +141,7 @@ export default class Chat extends Component {
         {
           chats: this.state.chats.concat([
             {
-              username: this.state.userID,
+              username: this.state.userName,
               content: <p>{data.text}</p>
             }
           ])
@@ -112,26 +153,26 @@ export default class Chat extends Component {
     });
   };
 
-  onJoinRoom() {
-    //call API and get roomId
-    const roomId = 'A123';
-    this.socket.emit('joinRoom', roomId)
-  }
-
   submitMessage(e) {
     e.preventDefault();
     let data = {
       text: ReactDOM.findDOMNode(this.refs.msg).value,
-      roomId: 'A123',
+      roomId: this.state.currentRoom,
       userId: '123456'
     }
     this.socket.emit('message', data)
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
+  onRoomClick(roomId) {
+    console.log(roomId)
+    this.setState({currentRoom: roomId})
+    this.socket.emit('joinRoom', roomId)
+  }
+
   render() {
-    //const username = "Job"; เปลี่ยน เป็น this.state.userID
-    const { chats } = this.state;
+    //const username = "Job"; เปลี่ยน เป็น this.state.userName
+    const { chats, joinedRooms } = this.state;
     return (
       <div className="boxChat">
         <div className="block-left">
@@ -146,7 +187,9 @@ export default class Chat extends Component {
                 <div style={{ padding: "30px 0px" }}>
                   <span style={{ fontSize: "12px" }}>username</span>
                   <br />
-                  <span style={{ fontSize: "20px" }}>{this.state.userID}</span>
+                  <span style={{ fontSize: "20px" }}>
+                    {this.state.userName}
+                  </span>
                 </div>
               </div>
               <div className="col">
@@ -223,14 +266,14 @@ export default class Chat extends Component {
             <div className="groupList">
               <div className="join">
                 <p className="headGroup">Joined Group</p>
-                <GrChat />
-                <GrChat />
+                {joinedRooms.map(room => (
+                  <GrChat
+                  roomDetail={room}
+                  onRoomClick={this.onRoomClick}/>
+                ))}
               </div>
               <div className="list">
                 <p className="headGroup">Group List </p>
-                <GrChat />
-                <GrChat />
-                <GrChat />
               </div>
             </div>
           </div>
@@ -245,7 +288,7 @@ export default class Chat extends Component {
               ))}
             </ul>
             <form className="input" onSubmit={e => this.submitMessage(e)}>
-              <input type="text" class="form-control m-1 ml-1" ref="msg" />
+              <input type="text" className="form-control m-1 ml-1" ref="msg" />
               <button type="submit" className="btn btn-outline-secondary m-1">
                 {" "}
                 Submit{" "}
