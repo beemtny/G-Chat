@@ -31,7 +31,7 @@ export default class Login extends Component {
     window.localStorage.setItem("userID", this.state.userID);
     axios({
       method: "get",
-      url: localhost + "/api/database/user/" + this.state.userID
+      url: localhost + "/api/user/" + this.state.userID
     }).then(res => {
       console.log(res.data);
       return this.props.history.push("/chat");

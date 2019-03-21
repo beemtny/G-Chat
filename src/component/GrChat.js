@@ -21,7 +21,7 @@ export default class GrChat extends Component {
         ) : (
 <button
             type="button"
-            class="btn btn-outline-success float-right ml-auto "
+            class="btn btn-outline-info float-right ml-auto "
           >
             Chat
           </button>
