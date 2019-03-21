@@ -19,7 +19,9 @@ export default class Chat extends Component {
       userID: "untitle",
       grName: "GrUntitle",
       isCreate: false,
-      chats: []
+      chats: [],
+      rooms:[],
+      roomId: null
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.submitMessage = this.submitMessage.bind(this);
@@ -36,12 +38,17 @@ export default class Chat extends Component {
     });
   };
 
-  onSubmit = async e => {
+  onSubmit = async e => {// create room นะอิดอก
     e.preventDefault();
     let data = {
       grName: this.state.grName,
       userID: this.state.userID
     };
+    this.setState({
+      rooms:[...this.state.rooms,{grName: this.state.grName ,messages: []}]
+      
+    })
+    console.log(this.state.rooms);
     console.log(data);
     // axios({
     //   method: "get",
@@ -92,9 +99,7 @@ export default class Chat extends Component {
           chats: this.state.chats.concat([
             {
               username: this.state.userID,
-              content: <p>{msg}</p>,
-              img:
-                "https://scontent.fbkk12-3.fna.fbcdn.net/v/t1.0-9/38737612_1929131837146363_6837282696201240576_n.jpg?_nc_cat=102&_nc_eui2=AeHAXKjNSVqYsLNyPhzu6AKUMyIujgbE12osK6lhugNB8dM6XcR2UJN6bwdZqT_2eneGnpy6CQsmlSEfeSd5r6n2OnBmX4MLNz6cDIQeVKcMVg&_nc_ht=scontent.fbkk12-3.fna&oh=0160a70904cd1c4afb3e7a315f7ccacd&oe=5D11651E"
+              content: <p>{msg}</p>
             }
           ])
         },
@@ -106,6 +111,7 @@ export default class Chat extends Component {
   };
 
   render() {
+    
     //const username = "Job"; เปลี่ยน เป็น this.state.userID
     const { chats } = this.state;
     return (
@@ -176,6 +182,7 @@ export default class Chat extends Component {
                                 type="button"
                                 class="btn btn-outline-danger"
                                 data-dismiss="modal"
+                                //onclick={}
                               >
                                 Close
                               </button>
