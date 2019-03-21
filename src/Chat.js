@@ -15,8 +15,10 @@ export default class Chat extends Component {
     );
     // this.socket = socketIOClient('http://localhost:4000')
     this.state = {
+      isJoin: false,
       userID: "untitle",
       grName: "GrUntitle",
+      isCreate: false,
       chats: [
         {
           username: "Job",
@@ -96,6 +98,7 @@ export default class Chat extends Component {
     // }).then(res => {
     //   console.log(res.data);
     // });
+    // return false;
   };
 
   componentWillMount() {
@@ -228,6 +231,7 @@ export default class Chat extends Component {
                               <button
                                 type="submit"
                                 class="btn btn-outline-dark"
+                                // data-dismiss="modal"
                               >
                                 Create
                               </button>
@@ -248,11 +252,6 @@ export default class Chat extends Component {
               </div>
               <div className="list">
                 <p className="headGroup">Group List </p>
-                <GrChat />
-                <GrChat />
-                <GrChat />
-                <GrChat />
-                <GrChat />
                 <GrChat />
                 <GrChat />
                 <GrChat />
