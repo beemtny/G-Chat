@@ -8,13 +8,15 @@ import man from "./pic/man.svg";
 import axios from "axios";
 
 const apiport = process.env.PORT || 8000;
-const localhost = "http://localhost:" + apiport;
+const localhost = "https://aqueous-plateau-79715.herokuapp.com";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
-    this.socket = socketIOClient('http://localhost:8000')
+    this.socket = socketIOClient(
+      "https://aqueous-plateau-79715.herokuapp.com/"
+    );
+    // this.socket = socketIOClient("http://localhost:8000");
     this.state = {
       userName: "userName",
       userID: "userID",
@@ -46,30 +48,22 @@ export default class Chat extends Component {
   onSubmit = async e => {
     // create room นะอิดอก
     e.preventDefault();
-    let data = {
-      grName: this.state.grName,
-      userName: this.state.userName
+    let createNewRoom = {
+      roomName: this.state.grName,
+      userID: this.state.userID
     };
-    this.setState({
-      rooms: [...this.state.rooms, { grName: this.state.grName, messages: [] }]
-    });
+    console.log(createNewRoom);
     axios({
-      method: "get",
-      url: localhost + "/api/user/" + this.state.userName
+      method: "post",
+      url: localhost + "/api/room/createroom",
+      data: createNewRoom
     }).then(res => {
       console.log(res.data);
-      return this.props.history.push("/chat");
+      this.fetch();
+      // return this.props.history.push("/chat");
     });
 
-    console.log(this.state.rooms);
-    console.log(data);
-    // axios({
-    //   method: "get",
-    //   url: localhost + "/api/database/user/" + this.state.userName
-    // }).then(res => {
-    //   console.log(res.data);
-    // });
-    // return false;
+    // console.log(data);
   };
 
   componentWillMount() {
@@ -91,7 +85,7 @@ export default class Chat extends Component {
     ).scrollHeight;
   }
 
-  fetch(){
+  fetch() {
     let user = window.localStorage.getItem("userName");
     this.setState({ userName: user }, () => {
       axios({
@@ -107,14 +101,14 @@ export default class Chat extends Component {
 
           axios({
             method: "get",
-            url: localhost + "/api/room/getroomlist/?userID=" + this.state.userID
-          }).then((res) => {
-            console.log(res)
+            url:
+              localhost + "/api/room/getroomlist/?userID=" + this.state.userID
+          }).then(res => {
+            console.log(res);
             const joinedRoom = res.data.data.joinedRoom;
-            this.setState({joinedRooms: joinedRoom})
-            console.log(this.state.joinedRooms)
-          })
-
+            this.setState({ joinedRooms: joinedRoom });
+            console.log(this.state.joinedRooms);
+          });
         });
     });
   }
@@ -135,8 +129,8 @@ export default class Chat extends Component {
 
   response = () => {
     //user ปัจจุบันที่ login
-    this.socket.on("new-msg", (data) => {
-      console.log(data)
+    this.socket.on("new-msg", data => {
+      console.log(data);
       this.setState(
         {
           chats: this.state.chats.concat([
@@ -158,16 +152,16 @@ export default class Chat extends Component {
     let data = {
       text: ReactDOM.findDOMNode(this.refs.msg).value,
       roomId: this.state.currentRoom,
-      userId: '123456'
-    }
-    this.socket.emit('message', data)
+      userId: "123456"
+    };
+    this.socket.emit("message", data);
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
   onRoomClick(roomId) {
-    console.log(roomId)
-    this.setState({currentRoom: roomId})
-    this.socket.emit('joinRoom', roomId)
+    console.log(roomId);
+    this.setState({ currentRoom: roomId });
+    this.socket.emit("joinRoom", roomId);
   }
 
   render() {
@@ -250,6 +244,7 @@ export default class Chat extends Component {
                               <button
                                 type="submit"
                                 className="btn btn-outline-dark"
+
                                 //data-dismiss="modal"
                               >
                                 Create
@@ -267,9 +262,7 @@ export default class Chat extends Component {
               <div className="join">
                 <p className="headGroup">Joined Group</p>
                 {joinedRooms.map(room => (
-                  <GrChat
-                  roomDetail={room}
-                  onRoomClick={this.onRoomClick}/>
+                  <GrChat roomDetail={room} onRoomClick={this.onRoomClick} />
                 ))}
               </div>
               <div className="list">
