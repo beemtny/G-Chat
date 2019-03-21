@@ -14,14 +14,14 @@ export default class GrChat extends Component {
         {this.state.isJoin ? (
           <button
             type="button"
-            class="btn btn-outline-success float-right ml-auto "
+            className="btn btn-outline-success float-right ml-auto "
           >
             Join
           </button>
         ) : (
-<button
+          <button
             type="button"
-            class="btn btn-outline-info float-right ml-auto "
+            className="btn btn-outline-info float-right ml-auto "
           >
             Chat
           </button>
