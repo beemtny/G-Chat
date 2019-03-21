@@ -7,14 +7,14 @@ import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
 
-const apiport = process.env.PORT || 8000;
-const localhost = "http://localhost:" + apiport;
+// const host = "http://localhost:8000";
+const host = "https://aqueous-plateau-79715.herokuapp.com";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
-    this.socket = socketIOClient('http://localhost:8000')
+    this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       userName: "userName",
       userID: "userID",
@@ -55,7 +55,7 @@ export default class Chat extends Component {
     });
     axios({
       method: "get",
-      url: localhost + "/api/user/" + this.state.userName
+      url: host + "/api/user/" + this.state.userName
     }).then(res => {
       console.log(res.data);
       return this.props.history.push("/chat");
@@ -65,7 +65,7 @@ export default class Chat extends Component {
     console.log(data);
     // axios({
     //   method: "get",
-    //   url: localhost + "/api/database/user/" + this.state.userName
+    //   url: host + "/api/database/user/" + this.state.userName
     // }).then(res => {
     //   console.log(res.data);
     // });
@@ -96,7 +96,7 @@ export default class Chat extends Component {
     this.setState({ userName: user }, () => {
       axios({
         method: "get",
-        url: localhost + "/api/user/" + this.state.userName
+        url: host + "/api/user/" + this.state.userName
       })
         .then(res => {
           this.setState({ userID: res.data.id });
@@ -107,7 +107,7 @@ export default class Chat extends Component {
 
           axios({
             method: "get",
-            url: localhost + "/api/room/getroomlist/?userID=" + this.state.userID
+            url: host + "/api/room/getroomlist/?userID=" + this.state.userID
           }).then((res) => {
             console.log(res)
             const joinedRoom = res.data.data.joinedRoom;
@@ -118,16 +118,6 @@ export default class Chat extends Component {
         });
     });
   }
-
-  // submitMessage(e) {
-  //     e.preventDefault();
-  //     let data = {
-  //       text: ReactDOM.findDOMNode(this.refs.msg).value,
-  //       userId: '123456'
-  //     }
-  //     this.socket.emit('chat', data)
-  //     ReactDOM.findDOMNode(this.refs.msg).value = "";
-  // }
 
   componentDidMount = () => {
     this.response();
@@ -158,7 +148,7 @@ export default class Chat extends Component {
     let data = {
       text: ReactDOM.findDOMNode(this.refs.msg).value,
       roomId: this.state.currentRoom,
-      userId: '123456'
+      userId: this.state.userID
     }
     this.socket.emit('message', data)
     ReactDOM.findDOMNode(this.refs.msg).value = "";
@@ -166,6 +156,9 @@ export default class Chat extends Component {
 
   onRoomClick(roomId) {
     console.log(roomId)
+    if(this.state.currentRoom) {
+      this.socket.emit('leaveRoom', this.state.currentRoom)
+    }
     this.setState({currentRoom: roomId})
     this.socket.emit('joinRoom', roomId)
   }

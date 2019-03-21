@@ -3,8 +3,8 @@ import { MDBContainer, MDBRow, MDBCol, MDBBtn } from "mdbreact";
 import "./App.css";
 import axios from "axios";
 
-const apiport = process.env.PORT || 8000;
-const localhost = "http://localhost:" + apiport;
+const host = "https://aqueous-plateau-79715.herokuapp.com";
+// const host = "http://localhost:8000";
 
 export default class Login extends Component {
   constructor(props) {
@@ -31,7 +31,7 @@ export default class Login extends Component {
     window.localStorage.setItem("userName", this.state.userName);
     axios({
       method: "get",
-      url: localhost + "/api/user/" + this.state.userName
+      url: host + "/api/user/" + this.state.userName
     }).then(res => {
       console.log(res.data);
       return this.props.history.push("/chat");
