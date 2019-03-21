@@ -94,6 +94,9 @@ export default class Chat extends Component {
     e.preventDefault();
     this.socket.emit("chat", ReactDOM.findDOMNode(this.refs.msg).value);
   }
+  leaveGroup(){
+      //this.leaveGroup();
+  }
 
   componentDidMount = () => {
     this.response();
@@ -182,6 +185,23 @@ export default class Chat extends Component {
             </form>
           </div>{" "}
         </div>
+        <div className="block-right"> <div className="chatroom">
+                <h3>ChatRoom</h3>
+                <ul className="chats" ref="chats">
+                    {
+                        chats.map((chat) =>
+                            <Message chat={chat} user={username} />
+                        )
+                    }
+                </ul>
+                <form className="input" onSubmit={(e) => this.submitMessage(e)}>
+                    <input type="text" ref="msg" />
+                    <input type="submit" value="Submit" />
+                    <input type="leavegroup" value="LeaveGroup"/>
+                </form>
+            </div>
+         </div>
+
       </div>
     );
   }

@@ -196,11 +196,10 @@
   transition: all 0.3s ease;
 }
 .chatroom .input input[type="leavegroup"] {
-  text-align: center;
   background: transparent;
   border: 1px solid rgb(92, 92, 92);
   height: 30px;
-  width: 95px;
+  width: 80px;
   font-size: 14px;
   box-sizing: border-box;
   border-top-right-radius: 5px;
