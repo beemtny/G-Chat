@@ -9,10 +9,8 @@ import man from "./pic/man.svg";
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient(
-      "https://aqueous-plateau-79715.herokuapp.com/"
-    );
-    // this.socket = socketIOClient('http://localhost:8000')
+    // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       isJoin: false,
       userID: "untitle",
@@ -79,23 +77,25 @@ export default class Chat extends Component {
     ).scrollHeight;
   }
 
-  submitMessage(e) {
-      e.preventDefault();
-      let data = {
-        text: ReactDOM.findDOMNode(this.refs.msg).value,
-        userId: '123456'
-      }
-      this.socket.emit('chat', data)
-      ReactDOM.findDOMNode(this.refs.msg).value = "";
-  }
+  // submitMessage(e) {
+  //     e.preventDefault();
+  //     let data = {
+  //       text: ReactDOM.findDOMNode(this.refs.msg).value,
+  //       userId: '123456'
+  //     }
+  //     this.socket.emit('chat', data)
+  //     ReactDOM.findDOMNode(this.refs.msg).value = "";
+  // }
 
   componentDidMount = () => {
     this.response();
+    this.onJoinRoom()
   };
 
   response = () => {
     //user ปัจจุบันที่ login
     this.socket.on("new-msg", (data) => {
+      console.log(data)
       this.setState(
         {
           chats: this.state.chats.concat([
@@ -111,6 +111,23 @@ export default class Chat extends Component {
       );
     });
   };
+
+  onJoinRoom() {
+    //call API and get roomId
+    const roomId = 'A123';
+    this.socket.emit('joinRoom', roomId)
+  }
+
+  submitMessage(e) {
+    e.preventDefault();
+    let data = {
+      text: ReactDOM.findDOMNode(this.refs.msg).value,
+      roomId: 'A123',
+      userId: '123456'
+    }
+    this.socket.emit('message', data)
+    ReactDOM.findDOMNode(this.refs.msg).value = "";
+  }
 
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userID
