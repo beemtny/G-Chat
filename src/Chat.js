@@ -189,7 +189,7 @@ export default class Chat extends Component {
                               <button
                                 type="submit"
                                 class="btn btn-outline-dark"
-                                // data-dismiss="modal"
+                                //data-dismiss="modal"
                               >
                                 Create
                               </button>

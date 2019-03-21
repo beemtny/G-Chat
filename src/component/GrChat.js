@@ -18,7 +18,14 @@ export default class GrChat extends Component {
           >
             Join
           </button>
-        ) : null}
+        ) : (
+<button
+            type="button"
+            class="btn btn-outline-success float-right ml-auto "
+          >
+            Chat
+          </button>
+        )}
       </div>
     );
   }
