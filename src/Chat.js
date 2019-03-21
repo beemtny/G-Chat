@@ -204,7 +204,7 @@ export default class Chat extends Component {
             </div>
             <div className="groupList">
               <div className="join">
-                <p className="headGroup">Join Group</p>
+                <p className="headGroup">Joined Group</p>
                 <GrChat />
                 <GrChat />
               </div>
