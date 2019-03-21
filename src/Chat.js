@@ -19,7 +19,8 @@ export default class Chat extends Component {
       grName: "GrUntitle",
       isCreate: false,
       chats: [],
-      rooms:[],
+      rooms: [],
+      messages: "",
       roomId: null
     };
     this.onSubmit = this.onSubmit.bind(this);
@@ -37,16 +38,16 @@ export default class Chat extends Component {
     });
   };
 
-  onSubmit = async e => {// create room นะอิดอก
+  onSubmit = async e => {
+    // create room นะอิดอก
     e.preventDefault();
     let data = {
       grName: this.state.grName,
       userID: this.state.userID
     };
     this.setState({
-      rooms:[...this.state.rooms,{grName: this.state.grName ,messages: []}]
-
-    })
+      rooms: [...this.state.rooms, { grName: this.state.grName, messages: [] }]
+    });
     console.log(this.state.rooms);
     console.log(data);
     // axios({
@@ -87,9 +88,6 @@ export default class Chat extends Component {
       this.socket.emit('chat', data)
       ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
-  leaveGroup() {
-    //this.leaveGroup();
-  }
 
   componentDidMount = () => {
     this.response();
@@ -115,7 +113,6 @@ export default class Chat extends Component {
   };
 
   render() {
-
     //const username = "Job"; เปลี่ยน เป็น this.state.userID
     const { chats } = this.state;
     return (
@@ -147,44 +144,44 @@ export default class Chat extends Component {
                   </button>
 
                   <div
-                    class="modal fade"
+                    className="modal fade"
                     id="exampleModal"
-                    tabindex="-1"
+                    tabIndex="-1"
                     role="dialog"
                     aria-labelledby="exampleModalLabel"
                     aria-hidden="true"
                   >
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">
+                    <div className="modal-dialog" role="document">
+                      <div className="modal-content">
+                        <div className="modal-header">
+                          <h5 className="modal-title" id="exampleModalLabel">
                             Create New Group
                           </h5>
                           <button
                             type="button"
-                            class="close"
+                            className="close"
                             data-dismiss="modal"
                             aria-label="Close"
                           >
                             <span aria-hidden="true">&times;</span>
                           </button>
                         </div>
-                        <div class="modal-body">
+                        <div className="modal-body">
                           <form onSubmit={this.onSubmit}>
-                            <div class="form-group">
+                            <div className="form-group">
                               <input
                                 type="text"
-                                class="form-control"
+                                className="form-control"
                                 id="GrName"
                                 placeholder="Group name"
                                 onChange={this.handleInputChange}
                                 name="grName"
                               />
                             </div>
-                            <div class="modal-footer">
+                            <div className="modal-footer">
                               <button
                                 type="button"
-                                class="btn btn-outline-danger"
+                                className="btn btn-outline-danger"
                                 data-dismiss="modal"
                                 //onclick={}
                               >
@@ -192,7 +189,7 @@ export default class Chat extends Component {
                               </button>
                               <button
                                 type="submit"
-                                class="btn btn-outline-dark"
+                                className="btn btn-outline-dark"
                                 //data-dismiss="modal"
                               >
                                 Create
@@ -231,27 +228,17 @@ export default class Chat extends Component {
               ))}
             </ul>
             <form className="input" onSubmit={e => this.submitMessage(e)}>
-              <input type="text" ref="msg" />
-              <input type="submit" value="Submit" />
-              <input type="leavegroup" value="Leave Group" />
+              <input type="text" class="form-control m-1 ml-1" ref="msg" />
+              <button type="submit" className="btn btn-outline-secondary m-1">
+                {" "}
+                Submit{" "}
+              </button>
+              <button type="button" className="btn btn-outline-danger m-1">
+                {" "}
+                Leave Group{" "}
+              </button>
             </form>
           </div>{" "}
-        </div>
-        <div className="block-right">
-          {" "}
-          <div className="chatroom">
-            <h3>ChatRoom</h3>
-            <ul className="chats" ref="chats">
-              {chats.map(chat => (
-                <Message chat={chat} user={this.state.userID} />
-              ))}
-            </ul>
-            <form className="input" onSubmit={e => this.submitMessage(e)}>
-              <input type="text" ref="msg" />
-              <input type="submit" value="Submit" />
-              <input type="leavegroup" value="LeaveGroup" />
-            </form>
-          </div>
         </div>
       </div>
     );
