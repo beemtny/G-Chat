@@ -10,7 +10,7 @@ export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userID: "",
+      userName: "",
       pass: ""
     };
     this.onSubmit = this.onSubmit.bind(this);
@@ -28,10 +28,10 @@ export default class Login extends Component {
 
   onSubmit = async e => {
     e.preventDefault();
-    window.localStorage.setItem("userID", this.state.userID);
+    window.localStorage.setItem("userName", this.state.userName);
     axios({
       method: "get",
-      url: localhost + "/api/user/" + this.state.userID
+      url: localhost + "/api/user/" + this.state.userName
     }).then(res => {
       console.log(res.data);
       return this.props.history.push("/chat");
@@ -56,7 +56,7 @@ export default class Login extends Component {
                   id="defaultFormLoginUsername"
                   className="form-control"
                   onChange={this.handleInputChange}
-                  name="userID"
+                  name="userName"
                 />
                 <br />
                 <label

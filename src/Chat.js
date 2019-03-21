@@ -5,6 +5,10 @@ import ReactDOM from "react-dom";
 import socketIOClient from "socket.io-client";
 import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
+import axios from "axios";
+
+const apiport = process.env.PORT || 8000;
+const localhost = "http://localhost:" + apiport;
 
 export default class Chat extends Component {
   constructor(props) {
@@ -15,8 +19,9 @@ export default class Chat extends Component {
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       isJoin: false,
-      userID: "untitle",
-      grName: "GrUntitle",
+      userName: "userName",
+      userID: "userID",
+      grName: "grName",
       isCreate: false,
       chats: [],
       rooms: [],
@@ -43,16 +48,24 @@ export default class Chat extends Component {
     e.preventDefault();
     let data = {
       grName: this.state.grName,
-      userID: this.state.userID
+      userName: this.state.userName
     };
     this.setState({
       rooms: [...this.state.rooms, { grName: this.state.grName, messages: [] }]
     });
+    axios({
+      method: "get",
+      url: localhost + "/api/user/" + this.state.userName
+    }).then(res => {
+      console.log(res.data);
+      return this.props.history.push("/chat");
+    });
+
     console.log(this.state.rooms);
     console.log(data);
     // axios({
     //   method: "get",
-    //   url: localhost + "/api/database/user/" + this.state.userID
+    //   url: localhost + "/api/database/user/" + this.state.userName
     // }).then(res => {
     //   console.log(res.data);
     // });
@@ -60,8 +73,20 @@ export default class Chat extends Component {
   };
 
   componentWillMount() {
-    let user = window.localStorage.getItem("userID");
-    this.setState({ userID: user }, () => console.log(this.state.userID));
+    let user = window.localStorage.getItem("userName");
+    this.setState({ userName: user }, () => {
+      axios({
+        method: "get",
+        url: localhost + "/api/user/" + this.state.userName
+      })
+        .then(res => {
+          this.setState({ userID: res.data.id });
+        })
+        .then(() => {
+          console.log(this.state.userName);
+          console.log(this.state.userID);
+        });
+    });
   }
   //Scroll ลง
 
@@ -80,13 +105,13 @@ export default class Chat extends Component {
   }
 
   submitMessage(e) {
-      e.preventDefault();
-      let data = {
-        text: ReactDOM.findDOMNode(this.refs.msg).value,
-        userId: '123456'
-      }
-      this.socket.emit('chat', data)
-      ReactDOM.findDOMNode(this.refs.msg).value = "";
+    e.preventDefault();
+    let data = {
+      text: ReactDOM.findDOMNode(this.refs.msg).value,
+      userName: "123456"
+    };
+    this.socket.emit("chat", data);
+    ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
   componentDidMount = () => {
@@ -95,12 +120,12 @@ export default class Chat extends Component {
 
   response = () => {
     //user ปัจจุบันที่ login
-    this.socket.on("new-msg", (data) => {
+    this.socket.on("new-msg", data => {
       this.setState(
         {
           chats: this.state.chats.concat([
             {
-              username: this.state.userID,
+              username: this.state.userName,
               content: <p>{data.text}</p>
             }
           ])
@@ -113,7 +138,7 @@ export default class Chat extends Component {
   };
 
   render() {
-    //const username = "Job"; เปลี่ยน เป็น this.state.userID
+    //const username = "Job"; เปลี่ยน เป็น this.state.userName
     const { chats } = this.state;
     return (
       <div className="boxChat">
@@ -129,7 +154,9 @@ export default class Chat extends Component {
                 <div style={{ padding: "30px 0px" }}>
                   <span style={{ fontSize: "12px" }}>username</span>
                   <br />
-                  <span style={{ fontSize: "20px" }}>{this.state.userID}</span>
+                  <span style={{ fontSize: "20px" }}>
+                    {this.state.userName}
+                  </span>
                 </div>
               </div>
               <div className="col">
@@ -228,7 +255,7 @@ export default class Chat extends Component {
               ))}
             </ul>
             <form className="input" onSubmit={e => this.submitMessage(e)}>
-              <input type="text" class="form-control m-1 ml-1" ref="msg" />
+              <input type="text" className="form-control m-1 ml-1" ref="msg" />
               <button type="submit" className="btn btn-outline-secondary m-1">
                 {" "}
                 Submit{" "}
