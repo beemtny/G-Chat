@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import { MDBContainer, MDBRow, MDBCol, MDBBtn } from "mdbreact";
 import "./App.css";
+import axios from "axios";
+
+const apiport = process.env.PORT || 8000;
+const localhost = "http://localhost:" + apiport;
 
 export default class Login extends Component {
   constructor(props) {
@@ -25,7 +29,13 @@ export default class Login extends Component {
   onSubmit = async e => {
     e.preventDefault();
     window.localStorage.setItem("userID", this.state.userID);
-    return this.props.history.push("/chat");
+    axios({
+      method: "get",
+      url: localhost + "/api/database/user/" + this.state.userID
+    }).then(res => {
+      console.log(res.data);
+      return this.props.history.push("/chat");
+    });
   };
 
   render() {
