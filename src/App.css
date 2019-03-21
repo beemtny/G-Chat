@@ -185,7 +185,6 @@
   box-sizing: border-box;
   font-size: 14px;
 }
-
 .chatroom .input input[type="submit"] {
   background: transparent;
   border: 1px solid rgb(92, 92, 92);
