@@ -247,6 +247,7 @@ export default class Chat extends Component {
   }
 
   onRoomClick(room) {
+    this.setState({ isLoading: true });
     if (this.state.currentRoom) {
       this.socket.emit("leaveRoom", this.state.currentRoom);
     }
