@@ -156,6 +156,11 @@ export default class Chat extends Component {
     this.socket.emit("joinRoom", roomId);
   }
 
+  onLeaveClick() {
+    this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
+    this.setState({currentRoom: null})
+  }
+
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
     const { chats, joinedRooms } = this.state;
@@ -278,7 +283,7 @@ export default class Chat extends Component {
                 {" "}
                 Submit{" "}
               </button>
-              <button type="button" className="btn btn-outline-danger m-1">
+              <button type="button" className="btn btn-outline-danger m-1" onClick={ () => this.onLeaveClick()}>
                 {" "}
                 Leave Group{" "}
               </button>
