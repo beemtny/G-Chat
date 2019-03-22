@@ -49,8 +49,8 @@ export default class Chat extends Component {
   };
 
   onSubmit = async e => {
-    // create room นะอิดอก
     e.preventDefault();
+    this.setState({ isLoading: true });
     let createNewRoom = {
       roomName: this.state.grName,
       userID: this.state.userID
@@ -70,6 +70,7 @@ export default class Chat extends Component {
   };
 
   componentWillMount() {
+    this.setState({ isLoading: true });
     this.fetchUserData().then(() => {
       this.fetchChatRoom();
     });
@@ -96,7 +97,11 @@ export default class Chat extends Component {
       console.log(res);
       const joinedRoom = res.data.data.joinedRoom;
       const unJoinRooms = res.data.data.notJoinedRoom;
-      this.setState({ joinedRooms: joinedRoom, unJoinRooms: unJoinRooms });
+      this.setState({
+        joinedRooms: joinedRoom,
+        unJoinRooms: unJoinRooms,
+        isLoading: false
+      });
     });
   }
 
@@ -343,20 +348,18 @@ export default class Chat extends Component {
                             </div>
                             <div className="modal-footer">
                               <button
-                                type="button"
-                                className="btn btn-outline-danger"
-                                data-dismiss="modal"
-                                //onclick={}
-                              >
-                                Close
-                              </button>
-                              <button
                                 type="submit"
                                 className="btn btn-outline-dark"
-
                                 //data-dismiss="modal"
                               >
                                 Create
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-outline-danger"
+                                data-dismiss="modal"
+                              >
+                                Close
                               </button>
                             </div>
                           </form>
