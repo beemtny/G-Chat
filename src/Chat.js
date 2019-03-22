@@ -33,6 +33,7 @@ export default class Chat extends Component {
     this.submitMessage = this.submitMessage.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.onRoomClick = this.onRoomClick.bind(this);
+    this.joinInRoom = this.joinInRoom.bind(this);
   }
 
   handleInputChange = e => {
@@ -94,7 +95,9 @@ export default class Chat extends Component {
     }).then(res => {
       console.log(res);
       const joinedRoom = res.data.data.joinedRoom;
-      this.setState({ joinedRooms: joinedRoom });
+      const unJoinRooms = res.data.data.notJoinedRoom;
+      this.setState({ joinedRooms: joinedRoom, unJoinRooms: unJoinRooms });
+      console.log(this.state.unJoinRooms);
       console.log(this.state.joinedRooms);
     });
   }
@@ -147,6 +150,24 @@ export default class Chat extends Component {
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
+  joinInRoom(roomID) {
+    // console.log(this.state.userID);
+    let joinInRoom = {
+      userID: this.state.userID,
+      roomID: roomID
+    };
+    console.log(joinInRoom);
+    axios({
+      method: "post",
+      url: host + "/api/room/join",
+      data: joinInRoom
+    }).then(res => {
+      console.log(res.data);
+      this.fetchChatRoom();
+      // return this.props.history.push("/chat");
+    });
+  }
+
   onRoomClick(roomId) {
     console.log(roomId);
     if (this.state.currentRoom) {
@@ -157,13 +178,13 @@ export default class Chat extends Component {
   }
 
   onLeaveClick() {
-    this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
-    this.setState({currentRoom: null})
+    this.socket.emit("leaveRoomPermanantly", this.state.currentRoom);
+    this.setState({ currentRoom: null });
   }
 
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
-    const { chats, joinedRooms } = this.state;
+    const { chats, joinedRooms, unJoinRooms } = this.state;
     return (
       <div className="boxChat">
         <div className="block-left">
@@ -259,11 +280,22 @@ export default class Chat extends Component {
               <div className="join">
                 <p className="headGroup">Joined Group</p>
                 {joinedRooms.map(room => (
-                  <GrChat roomDetail={room} onRoomClick={this.onRoomClick} />
+                  <GrChat
+                    roomDetail={room}
+                    onRoomClick={this.onRoomClick}
+                    isJoined={true}
+                  />
                 ))}
               </div>
               <div className="list">
                 <p className="headGroup">Group List </p>
+                {unJoinRooms.map(room => (
+                  <GrChat
+                    roomDetail={room}
+                    isJoined={false}
+                    onRoomClick={this.joinInRoom}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -283,7 +315,11 @@ export default class Chat extends Component {
                 {" "}
                 Submit{" "}
               </button>
-              <button type="button" className="btn btn-outline-danger m-1" onClick={ () => this.onLeaveClick()}>
+              <button
+                type="button"
+                className="btn btn-outline-danger m-1"
+                onClick={() => this.onLeaveClick()}
+              >
                 {" "}
                 Leave Group{" "}
               </button>
