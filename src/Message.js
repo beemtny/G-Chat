@@ -5,8 +5,11 @@ const Message = ({ chat, user }) => (
     className={`chat ${user === chat.userID ? "right" : "left"}`}
     style={{ backgroundColor: `${chat.isRead ? "" : "lightpink"}` }}
   >
-    <p style={{ color: "green" }}>{chat.username}</p>
+    <p style={{ color: "green" }}>
+      {chat.username} {chat.chatMessageID}
+    </p>
     {chat.content}
+    {console.log(chat.chatMessageID)}
     {/* <p>{chat.isRead.toString()}</p> */}
   </li>
 );

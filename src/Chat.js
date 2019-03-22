@@ -6,6 +6,7 @@ import socketIOClient from "socket.io-client";
 import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
+const mongoose = require("mongoose");
 
 // const host = "http://localhost:8000";
 const host = "https://aqueous-plateau-79715.herokuapp.com";
@@ -135,12 +136,15 @@ export default class Chat extends Component {
       let chats = [];
       messageList.map(message => {
         const isRead = message._id <= this.state.lastestRead; //calculate
+        let timeStamp = mongoose.Types.ObjectId(message._id).getTimestamp();
+        let time = timeStamp.getHours() + ":" + timeStamp.getMinutes();
         chats.push({
           userID: message.sender._id,
           content: <p>{message.text}</p>,
           username: message.sender.name,
           isRead: isRead,
-          lastestRead: this.state.lastestRead
+          lastestRead: this.state.lastestRead,
+          chatMessageID: time
         });
       });
       let newLastestRead = "";
@@ -165,6 +169,8 @@ export default class Chat extends Component {
     //user ปัจจุบันที่ login
     this.socket.on("new-msg", data => {
       console.log(data);
+      let timeStamp = mongoose.Types.ObjectId(data.lastestRead).getTimestamp();
+      let time = timeStamp.getHours() + ":" + timeStamp.getMinutes();
       this.setState(
         {
           chats: this.state.chats.concat([
@@ -173,7 +179,8 @@ export default class Chat extends Component {
               content: <p>{data.text}</p>,
               username: data.username,
               isRead: data.isRead,
-              lastestRead: data.lastestRead
+              lastestRead: data.lastestRead,
+              chatMessageID: time
             }
           ]),
           newLastestRead: data.lastestRead
