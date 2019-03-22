@@ -151,10 +151,12 @@ export default class Chat extends Component {
   }
 
   joinInRoom(roomID) {
+    // console.log(this.state.userID);
     let joinInRoom = {
       userID: this.state.userID,
       roomID: roomID
     };
+    console.log(joinInRoom);
     axios({
       method: "post",
       url: host + "/api/room/join",
