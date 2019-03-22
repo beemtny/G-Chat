@@ -27,7 +27,8 @@ export default class Chat extends Component {
       unJoinRooms: [],
       messages: "",
       roomId: null,
-      currentRoom: null
+      currentRoom: null,
+      isLoading: false
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.submitMessage = this.submitMessage.bind(this);
@@ -79,7 +80,7 @@ export default class Chat extends Component {
   }
 
   scrollToBot() {
-    if(this.state.currentRoom) {
+    if (this.state.currentRoom) {
       ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(
         this.refs.chats
       ).scrollHeight;
@@ -113,9 +114,7 @@ export default class Chat extends Component {
     });
   }
 
-  fetchMessage() {
-    
-  }
+  fetchMessage() {}
 
   componentDidMount = () => {
     this.response();
@@ -139,7 +138,7 @@ export default class Chat extends Component {
         }
       );
     });
-  };
+  }
 
   submitMessage(e) {
     e.preventDefault();
@@ -176,56 +175,65 @@ export default class Chat extends Component {
       this.socket.emit("leaveRoom", this.state.currentRoom);
     }
     //load message to chats
-    this.setState({currentRoom: roomId})
-    this.socket.emit('joinRoom', roomId)
+    this.setState({ currentRoom: roomId });
+    this.socket.emit("joinRoom", roomId);
   }
 
   onLeaveClick() {
-    this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
+    this.socket.emit("leaveRoomPermanantly", this.state.currentRoom);
     const data = {
       userID: this.state.userID,
       roomID: this.state.currentRoom
-    }
+    };
     axios({
       method: "post",
       url: host + "/api/room/leave",
       data: data
-    }).then((res) => {
-      if(res.data.confirmation === 'success') {
-        this.fetchChatRoom()
-        this.setState({currentRoom: null})
-      }
-    }).catch(() => {
-      console.log('err')
     })
+      .then(res => {
+        if (res.data.confirmation === "success") {
+          this.fetchChatRoom();
+          this.setState({ currentRoom: null });
+        }
+      })
+      .catch(() => {
+        console.log("err");
+      });
   }
 
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
     const { chats, joinedRooms, unJoinRooms, currentRoom, grName } = this.state;
-    let window = currentRoom?(
-        <div className="chatroom">
-          <h3>ChatRoom</h3>
-          <ul className="chats" ref="chats">
-            {chats.map((chat, index) => (
-              <Message chat={chat} user={this.state.userID} key={index} />
-            ))}
-          </ul>
-          <form className="input" onSubmit={e => this.submitMessage(e)}>
-            <input type="text" className="form-control m-1 ml-1" ref="msg" />
-            <button type="submit" className="btn btn-outline-secondary m-1">
-              {" "}
-              Submit{" "}
-            </button>
-            <button type="button" className="btn btn-outline-danger m-1" onClick={ () => this.onLeaveClick()}>
-              {" "}
-              Leave Group{" "}
-            </button>
-          </form>
-        </div>
-    ):(
-      <img src='http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg' style={{'width': '0%', 'height': '0%'}}/>
-    )
+    let window = currentRoom ? (
+      <div className="chatroom">
+        <h3>ChatRoom</h3>
+        <ul className="chats" ref="chats">
+          {chats.map((chat, index) => (
+            <Message chat={chat} user={this.state.userID} key={index} />
+          ))}
+        </ul>
+        <form className="input" onSubmit={e => this.submitMessage(e)}>
+          <input type="text" className="form-control m-1 ml-1" ref="msg" />
+          <button type="submit" className="btn btn-outline-secondary m-1">
+            {" "}
+            Submit{" "}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline-danger m-1"
+            onClick={() => this.onLeaveClick()}
+          >
+            {" "}
+            Leave Group{" "}
+          </button>
+        </form>
+      </div>
+    ) : (
+      <img
+        src="http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg"
+        style={{ width: "0%", height: "0%" }}
+      />
+    );
 
     return (
       <div className="boxChat">
@@ -343,9 +351,12 @@ export default class Chat extends Component {
             </div>
           </div>
         </div>
-        <div className="block-right">
-          {window}
-        </div>
+        <div className="block-right">{window}</div>
+        {this.state.isLoading ? (
+          <div className="Loading">
+            <div className="loader " />
+          </div>
+        ) : null}
       </div>
     );
   }
