@@ -9,14 +9,14 @@ import axios from "axios";
 const mongoose = require("mongoose");
 
 // const host = "http://localhost:8000";
-const host = "https://aqueous-plateau-79715.herokuapp.com";
+// const host = "https://aqueous-plateau-79715.herokuapp.com";
+const host = "http://192.168.43.27:8080";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient(
-      "https://aqueous-plateau-79715.herokuapp.com/"
-    );
+    this.socket = socketIOClient("http://192.168.43.27:8080");
+    // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       userName: null,

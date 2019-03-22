@@ -3,7 +3,8 @@ import { MDBContainer, MDBRow, MDBCol, MDBBtn } from "mdbreact";
 import "./App.css";
 import axios from "axios";
 
-const host = "https://aqueous-plateau-79715.herokuapp.com";
+// const host = "https://aqueous-plateau-79715.herokuapp.com";
+const host = "http://192.168.43.27:8080";
 // const host = "http://localhost:8000";
 
 export default class Login extends Component {
