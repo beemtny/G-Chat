@@ -28,7 +28,8 @@ export default class Chat extends Component {
       messages: "",
       roomId: null,
       currentRoom: null,
-      lastestRead: null
+      lastestRead: null,
+      newLastestRead: null
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.submitMessage = this.submitMessage.bind(this);
@@ -124,17 +125,19 @@ export default class Chat extends Component {
       const messageList = res.data.data;
       let chats = [];
       messageList.map(message => {
-        console.log(message)
-        const isRead = true; //calculate
+        const isRead = message._id<=this.state.lastestRead; //calculate
         chats.push({
-          userID: message.sender,
+          userID: message.sender._id,
           content: <p>{message.text}</p>,
-          username: 'dummy username',
-          isRead: isRead
+          username: message.sender.name,
+          isRead: isRead,
         });
       })
-      console.log(chats);
-      this.setState({chats: chats})
+      console.log(messageList[messageList.length-1])
+      this.setState({
+        chats: chats,
+        newLastestRead: messageList[messageList.length-1]._id
+      })
     });
   }
 
@@ -200,6 +203,20 @@ export default class Chat extends Component {
     });
   }
 
+  async updateLastesRead() {
+    const data = {
+      userID: this.state.userID,
+      roomID: this.state.currentRoom,
+      lastestReadID: this.state.lastestRead
+    }
+    console.log('update: '+data)
+    return axios({
+      method: "post",
+      url: host + "/api/user/updatelatestread",
+      data: data
+    })
+  }
+
   onRoomClick(room) {
     const roomId = room.room._id
     const lastestRead = room.lastestRead === ""?-1:room.lastestRead
@@ -207,6 +224,17 @@ export default class Chat extends Component {
       this.socket.emit("leaveRoom", this.state.currentRoom);
     }
     //load message to chats
+    // this.updateLastesRead()
+    // .then(() => {
+    //   this.setState({
+    //     currentRoom: roomId,
+    //     lastestRead: lastestRead
+    //   }, () => {
+    //     this.fetchMessage()
+    //   })
+    //   this.socket.emit('joinRoom', roomId)
+    // })
+
     this.setState({
       currentRoom: roomId,
       lastestRead: lastestRead
