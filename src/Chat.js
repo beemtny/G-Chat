@@ -7,14 +7,14 @@ import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
 
-// const host = "http://localhost:8000";
-const host = "https://aqueous-plateau-79715.herokuapp.com";
+const host = "http://localhost:8000";
+// const host = "https://aqueous-plateau-79715.herokuapp.com";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
-    // this.socket = socketIOClient('http://localhost:8000')
+    // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       userName: "userName",
       userID: "userID",
@@ -155,6 +155,11 @@ export default class Chat extends Component {
     this.socket.emit('joinRoom', roomId)
   }
 
+  onLeaveClick() {
+    this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
+    this.setState({currentRoom: null})
+  }
+
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
     const { chats, joinedRooms } = this.state;
@@ -277,7 +282,7 @@ export default class Chat extends Component {
                 {" "}
                 Submit{" "}
               </button>
-              <button type="button" className="btn btn-outline-danger m-1">
+              <button type="button" className="btn btn-outline-danger m-1" onClick={ () => this.onLeaveClick()}>
                 {" "}
                 Leave Group{" "}
               </button>
