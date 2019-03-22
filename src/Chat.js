@@ -18,9 +18,9 @@ export default class Chat extends Component {
     );
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
-      userName: "userName",
-      userID: "userID",
-      grName: "grName",
+      userName: null,
+      userID: null,
+      grName: null,
       isCreate: false,
       chats: [],
       joinedRooms: [],
@@ -60,13 +60,14 @@ export default class Chat extends Component {
       method: "post",
       url: host + "/api/room/createroom",
       data: createNewRoom
-    }).then(res => {
-      console.log(res.data);
-      this.fetchChatRoom();
-      // return this.props.history.push("/chat");
-    });
-
-    // console.log(data);
+    })
+      .then(res => {
+        console.log(res.data);
+        this.fetchChatRoom();
+      })
+      .then(() => {
+        this.setState({ isLoading: false });
+      });
   };
 
   componentWillMount() {
@@ -140,7 +141,7 @@ export default class Chat extends Component {
         });
       });
       console.log(chats);
-      this.setState({ chats: chats });
+      this.setState({ chats: chats, isLoading: false });
     });
   }
 
@@ -189,7 +190,7 @@ export default class Chat extends Component {
   }
 
   joinInRoom(roomID) {
-    // console.log(this.state.userID);
+    this.setState({ isLoading: true });
     let joinInRoom = {
       userID: this.state.userID,
       roomID: roomID
@@ -207,6 +208,7 @@ export default class Chat extends Component {
   }
 
   onRoomClick(room) {
+    this.setState({ isLoading: true });
     const roomId = room.room._id;
     const lastestRead = room.lastestRead === "" ? -1 : room.lastestRead;
     if (this.state.currentRoom) {
@@ -226,6 +228,7 @@ export default class Chat extends Component {
   }
 
   onLeaveClick() {
+    this.setState({ isLoading: true });
     this.socket.emit("leaveRoomPermanantly", this.state.currentRoom);
     const data = {
       userID: this.state.userID,
@@ -350,7 +353,6 @@ export default class Chat extends Component {
                               <button
                                 type="submit"
                                 className="btn btn-outline-dark"
-                                //data-dismiss="modal"
                               >
                                 Create
                               </button>
