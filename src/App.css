@@ -13,7 +13,7 @@
 
 .block-left {
   position: absolute;
-  border: 1px solid rgba(128, 128, 128, 0.151);
+  /* border: 1px solid rgba(128, 128, 128, 0.151); */
   border-radius: 15px 0px 0px 15px;
   display: inline-block;
   width: 40%;
@@ -22,12 +22,93 @@
 
 .block-right {
   position: absolute;
-  border: 1px solid rgba(128, 128, 128, 0.151);
-  border-radius: 0px 15px 15px 0px;
+  /* border: 1px solid rgba(128, 128, 128, 0.151);  */
+  border-radius: 0px 10px 10px 0px;
   display: inline-block;
   left: 40%;
   width: 60%;
   height: 100%;
+  background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
+	background-size: 400% 400%;
+	-webkit-animation: Gradient 15s ease infinite;
+	-moz-animation: Gradient 15s ease infinite;
+	animation: Gradient 15s ease infinite;
+  
+}
+@keyframes move_wave {
+    0% {
+        transform: translateX(0) translateZ(0) scaleY(1)
+    }
+    50% {
+        transform: translateX(-25%) translateZ(0) scaleY(0.55)
+    }
+    100% {
+        transform: translateX(-50%) translateZ(0) scaleY(1)
+    }
+}
+.waveWrapper {
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    margin: auto;
+}
+.waveWrapperInner {
+    position: absolute;
+    width: 100%;
+    overflow: hidden;
+    height: 100%;
+    bottom: -1px;
+    background-image: linear-gradient(to top, #86377b 20%, #27273c 80%);
+}
+.bgTop {
+    z-index: 15;
+    opacity: 0.5;
+}
+.bgMiddle {
+    z-index: 10;
+    opacity: 0.75;
+}
+.bgBottom {
+    z-index: 5;
+}
+
+@-webkit-keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+@-moz-keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+@keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
 }
 
 .header {
@@ -110,8 +191,10 @@
 .chatroom {
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 1);
+  /* border-radius: 5px; */
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
   overflow: hidden;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.3);
 }
@@ -133,7 +216,9 @@
   padding: 0 20px;
   margin: 10px 0 0;
   height: 80%;
+  width: 100%;
   overflow-y: scroll;
+  
 }
 
 .chatroom .chats .chat {
@@ -149,15 +234,6 @@
   max-width: 200px;
 }
 
-.chatroom .chats .chat img {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  position: absolute;
-  top: -10px;
-  left: 0px;
-}
-
 .chatroom .chats .chat.right {
   float: right;
   clear: both;
@@ -169,7 +245,7 @@
 }
 
 .chatroom .input {
-  height: 10%;
+  height: 11%;
   width: 100%;
   background: rgba(161, 161, 161, 0.274);
   display: flex;
@@ -190,35 +266,5 @@
   box-sizing: border-box;
   font-size: 14px;
 }
-.chatroom .input input[type="submit"] {
-  background: transparent;
-  border: 1px solid rgb(92, 92, 92);
-  height: 30px;
-  width: 70px;
-  font-size: 14px;
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.chatroom .input input[type="leavegroup"] {
-  text-align: center;
-  background: transparent;
-  border: 1px solid rgb(92, 92, 92);
-  height: 30px;
-  width: 95px;
-  font-size: 14px;
-  box-sizing: border-box;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
-.chatroom .input input[type="submit"]:hover {
-  background: rgb(36, 151, 228);
-  color: #fff;
-}
-.chatroom .input input[type="leavegroup"]:hover {
-  background: rgb(209, 8, 8);
-  color: #fff;
-}
+

@@ -22,10 +22,21 @@ export default class GrChat extends Component {
         ) : (
           <button
             type="button"
+<<<<<<< HEAD
             className="btn btn-outline-success float-right ml-auto "
             onClick={() => {
               onRoomClick(roomDetail._id);
             }}
+||||||| merged common ancestors
+            className="btn btn-outline-info float-right ml-auto "
+            onClick={() => { onRoomClick(roomDetail.room._id)}}
+=======
+            className="btn btn-outline-success float-right ml-auto "
+            onClick={() => {
+              onRoomClick(roomDetail._id);
+              // console.log(roomDetail._id);
+            }}
+>>>>>>> 613e60b4edfea93fc2dc2e96b3193740223c1e3f
           >
             Join
           </button>
