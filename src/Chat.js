@@ -13,7 +13,9 @@ const host = "https://aqueous-plateau-79715.herokuapp.com";
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    this.socket = socketIOClient(
+      "https://aqueous-plateau-79715.herokuapp.com/"
+    );
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       userName: "userName",
@@ -57,7 +59,7 @@ export default class Chat extends Component {
       data: createNewRoom
     }).then(res => {
       console.log(res.data);
-      this.fetch();
+      this.fetchChatRoom();
       // return this.props.history.push("/chat");
     });
 
@@ -65,7 +67,9 @@ export default class Chat extends Component {
   };
 
   componentWillMount() {
-    this.fetch();
+    this.fetchUserData().then(() => {
+      this.fetchChatRoom();
+    });
   }
   //Scroll ลง
 
@@ -83,31 +87,28 @@ export default class Chat extends Component {
     ).scrollHeight;
   }
 
-  fetch() {
-    let user = window.localStorage.getItem("userName");
-    this.setState({ userName: user }, () => {
-      axios({
-        method: "get",
-        url: host + "/api/user/" + this.state.userName
-      })
-        .then(res => {
-          this.setState({ userID: res.data.id });
-        })
-        .then(() => {
-          console.log(this.state.userName);
-          console.log(this.state.userID);
+  fetchChatRoom() {
+    axios({
+      method: "get",
+      url: host + "/api/room/getroomlist/?userID=" + this.state.userID
+    }).then(res => {
+      console.log(res);
+      const joinedRoom = res.data.data.joinedRoom;
+      this.setState({ joinedRooms: joinedRoom });
+      console.log(this.state.joinedRooms);
+    });
+  }
 
-          axios({
-            method: "get",
-            url:
-              host + "/api/room/getroomlist/?userID=" + this.state.userID
-          }).then(res => {
-            console.log(res);
-            const joinedRoom = res.data.data.joinedRoom;
-            this.setState({ joinedRooms: joinedRoom });
-            console.log(this.state.joinedRooms);
-          });
-        });
+  async fetchUserData() {
+    let user = window.localStorage.getItem("userName");
+    await this.setState({ userName: user });
+    return axios({
+      method: "get",
+      url: host + "/api/user/" + this.state.userName
+    }).then(async res => {
+      this.setState({ userID: res.data.id });
+      console.log(this.state.userName);
+      console.log(this.state.userID);
     });
   }
 
@@ -141,18 +142,18 @@ export default class Chat extends Component {
       text: ReactDOM.findDOMNode(this.refs.msg).value,
       roomId: this.state.currentRoom,
       userId: this.state.userID
-    }
-    this.socket.emit('message', data)
+    };
+    this.socket.emit("message", data);
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
   onRoomClick(roomId) {
-    console.log(roomId)
-    if(this.state.currentRoom) {
-      this.socket.emit('leaveRoom', this.state.currentRoom)
+    console.log(roomId);
+    if (this.state.currentRoom) {
+      this.socket.emit("leaveRoom", this.state.currentRoom);
     }
-    this.setState({currentRoom: roomId})
-    this.socket.emit('joinRoom', roomId)
+    this.setState({ currentRoom: roomId });
+    this.socket.emit("joinRoom", roomId);
   }
 
   render() {
