@@ -113,11 +113,15 @@ export default class Chat extends Component {
     });
   }
 
+  fetchMessage() {
+    
+  }
+
   componentDidMount = () => {
     this.response();
   };
 
-  response = () => {
+  response() {
     //user ปัจจุบันที่ login
     this.socket.on("new-msg", data => {
       console.log(data);
@@ -182,13 +186,13 @@ export default class Chat extends Component {
       userID: this.state.userID,
       roomID: this.state.currentRoom
     }
-    console.log(data)
     axios({
       method: "post",
       url: host + "/api/room/leave",
       data: data
     }).then((res) => {
       if(res.data.confirmation === 'success') {
+        this.fetchChatRoom()
         this.setState({currentRoom: null})
       }
     }).catch(() => {
