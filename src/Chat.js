@@ -138,9 +138,13 @@ export default class Chat extends Component {
           lastestRead: this.state.lastestRead
         });
       })
+      let newLastestRead = ""
+      if(messageList.length>0){
+        newLastestRead = messageList[messageList.length-1]._id
+      }
       this.setState({
         chats: chats,
-        newLastestRead: messageList[messageList.length-1]._id,
+        newLastestRead: newLastestRead,
         isLoading: false
       })
       console.log(chats)
