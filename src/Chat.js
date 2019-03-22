@@ -151,19 +151,29 @@ export default class Chat extends Component {
 
   onLeaveClick() {
     this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
-    this.setState({currentRoom: null})
+    const data = {
+      userID: this.state.userID,
+      rooID: this.state.roomId
+    }
+    axios({
+      method: "post",
+      url: host + "/api/room/leave22",
+      data: data
+    }).then(() => {
+      console.log('success')
+      this.setState({currentRoom: null})
+    })
   }
 
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
-    const { chats, joinedRooms,currentRoom } = this.state;
-    console.log(currentRoom)
+    const { chats, joinedRooms,currentRoom, grName } = this.state;
     let window = currentRoom?(
         <div className="chatroom">
           <h3>ChatRoom</h3>
           <ul className="chats" ref="chats">
-            {chats.map(chat => (
-              <Message chat={chat} user={this.state.userID} />
+            {chats.map((chat, index) => (
+              <Message chat={chat} user={this.state.userID} key={index} />
             ))}
           </ul>
           <form className="input" onSubmit={e => this.submitMessage(e)}>
@@ -276,7 +286,7 @@ export default class Chat extends Component {
               <div className="join">
                 <p className="headGroup">Joined Group</p>
                 {joinedRooms.map(room => (
-                  <GrChat roomDetail={room} onRoomClick={this.onRoomClick} />
+                  <GrChat roomDetail={room} onRoomClick={this.onRoomClick} key={room.room._id} />
                 ))}
               </div>
               <div className="list">
