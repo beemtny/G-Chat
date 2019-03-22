@@ -14,7 +14,7 @@ export default class GrChat extends Component {
             type="button"
             className="btn btn-outline-info float-right ml-auto "
             onClick={() => {
-              onRoomClick(roomDetail.room._id);
+              onRoomClick(roomDetail);
             }}
           >
             chat
