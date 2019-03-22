@@ -18,9 +18,9 @@ export default class Chat extends Component {
     );
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
-      userName: "userName",
-      userID: "userID",
-      grName: "grName",
+      userName: null,
+      userID: null,
+      grName: null,
       isCreate: false,
       chats: [],
       joinedRooms: [],
@@ -29,6 +29,7 @@ export default class Chat extends Component {
       roomId: null,
       currentRoom: null,
       lastestRead: null,
+      isLoading: false,
       newLastestRead: null
     };
     this.onSubmit = this.onSubmit.bind(this);
@@ -49,8 +50,8 @@ export default class Chat extends Component {
   };
 
   onSubmit = async e => {
-    // create room นะอิดอก
     e.preventDefault();
+    this.setState({ isLoading: true });
     let createNewRoom = {
       roomName: this.state.grName,
       userID: this.state.userID
@@ -60,16 +61,18 @@ export default class Chat extends Component {
       method: "post",
       url: host + "/api/room/createroom",
       data: createNewRoom
-    }).then(res => {
-      console.log(res.data);
-      this.fetchChatRoom();
-      // return this.props.history.push("/chat");
-    });
-
-    // console.log(data);
+    })
+      .then(res => {
+        console.log(res.data);
+        this.fetchChatRoom();
+      })
+      .then(() => {
+        this.setState({ isLoading: false });
+      });
   };
 
   componentWillMount() {
+    this.setState({ isLoading: true });
     this.fetchUserData().then(() => {
       this.fetchChatRoom();
     });
@@ -81,7 +84,7 @@ export default class Chat extends Component {
   }
 
   scrollToBot() {
-    if(this.state.currentRoom) {
+    if (this.state.currentRoom) {
       ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(
         this.refs.chats
       ).scrollHeight;
@@ -93,10 +96,14 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/room/getroomlist/?userID=" + this.state.userID
     }).then(res => {
-      console.log(res)
+      console.log(res);
       const joinedRoom = res.data.data.joinedRoom;
       const unJoinRooms = res.data.data.notJoinedRoom;
-      this.setState({ joinedRooms: joinedRoom, unJoinRooms: unJoinRooms });
+      this.setState({
+        joinedRooms: joinedRoom,
+        unJoinRooms: unJoinRooms,
+        isLoading: false
+      });
     });
   }
 
@@ -107,7 +114,7 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/user/" + this.state.userName
     }).then(async res => {
-      console.log(res)
+      console.log(res);
       this.setState({ userID: res.data.id });
     });
   }
@@ -116,7 +123,7 @@ export default class Chat extends Component {
     const data = {
       roomID: this.state.currentRoom,
       lastestReadID: this.state.lastestRead
-    }
+    };
     axios({
       method: "post",
       url: host + "/api/room/fetchmessage",
@@ -136,7 +143,8 @@ export default class Chat extends Component {
       console.log(messageList[messageList.length-1])
       this.setState({
         chats: chats,
-        newLastestRead: messageList[messageList.length-1]._id
+        newLastestRead: messageList[messageList.length-1]._id,
+        isLoading: false
       })
     });
   }
@@ -165,12 +173,12 @@ export default class Chat extends Component {
         }
       );
     });
-  };
+  }
 
   submitMessage(e) {
     e.preventDefault();
-    const text = ReactDOM.findDOMNode(this.refs.msg).value
-    if(text !== ""){
+    const text = ReactDOM.findDOMNode(this.refs.msg).value;
+    if (text !== "") {
       let data = {
         text: ReactDOM.findDOMNode(this.refs.msg).value,
         roomId: this.state.currentRoom,
@@ -180,13 +188,13 @@ export default class Chat extends Component {
       };
       this.socket.emit("message", data);
       ReactDOM.findDOMNode(this.refs.msg).value = "";
-    }else {
-      console.log('message not send')
+    } else {
+      console.log("message not send");
     }
   }
 
   joinInRoom(roomID) {
-    // console.log(this.state.userID);
+    this.setState({ isLoading: true });
     let joinInRoom = {
       userID: this.state.userID,
       roomID: roomID
@@ -247,51 +255,61 @@ export default class Chat extends Component {
   }
 
   onLeaveClick() {
-    this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
+    this.setState({ isLoading: true });
+    this.socket.emit("leaveRoomPermanantly", this.state.currentRoom);
     const data = {
       userID: this.state.userID,
       roomID: this.state.currentRoom
-    }
+    };
     axios({
       method: "post",
       url: host + "/api/room/leave",
       data: data
-    }).then((res) => {
-      if(res.data.confirmation === 'success') {
-        this.fetchChatRoom()
-        this.setState({currentRoom: null})
-      }
-    }).catch(() => {
-      console.log('err')
     })
+      .then(res => {
+        if (res.data.confirmation === "success") {
+          this.fetchChatRoom();
+          this.setState({ currentRoom: null });
+        }
+      })
+      .catch(() => {
+        console.log("err");
+      });
   }
 
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
     const { chats, joinedRooms, unJoinRooms, currentRoom, grName } = this.state;
-    let window = currentRoom?(
-        <div className="chatroom">
-          <h3>ChatRoom</h3>
-          <ul className="chats" ref="chats">
-            {chats.map((chat, index) => (
-              <Message chat={chat} user={this.state.userID} key={index} />
-            ))}
-          </ul>
-          <form className="input" onSubmit={e => this.submitMessage(e)}>
-            <input type="text" className="form-control m-1 ml-1" ref="msg" />
-            <button type="submit" className="btn btn-outline-secondary m-1">
-              {" "}
-              Submit{" "}
-            </button>
-            <button type="button" className="btn btn-outline-danger m-1" onClick={ () => this.onLeaveClick()}>
-              {" "}
-              Leave Group{" "}
-            </button>
-          </form>
-        </div>
-    ):(
-      <img src='http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg' style={{'width': '0%', 'height': '0%'}}/>
-    )
+    let window = currentRoom ? (
+      <div className="chatroom">
+        <h3>ChatRoom</h3>
+        <ul className="chats" ref="chats">
+          {chats.map((chat, index) => (
+            <Message chat={chat} user={this.state.userID} key={index} />
+          ))}
+        </ul>
+        <form className="input" onSubmit={e => this.submitMessage(e)}>
+          <input type="text" className="form-control m-1 ml-1" ref="msg" />
+          <button type="submit" className="btn btn-outline-secondary m-1">
+            {" "}
+            Submit{" "}
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline-danger m-1"
+            onClick={() => this.onLeaveClick()}
+          >
+            {" "}
+            Leave Group{" "}
+          </button>
+        </form>
+      </div>
+    ) : (
+      <img
+        src="http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg"
+        style={{ width: "0%", height: "0%" }}
+      />
+    );
 
     return (
       <div className="boxChat">
@@ -360,20 +378,17 @@ export default class Chat extends Component {
                             </div>
                             <div className="modal-footer">
                               <button
+                                type="submit"
+                                className="btn btn-outline-dark"
+                              >
+                                Create
+                              </button>
+                              <button
                                 type="button"
                                 className="btn btn-outline-danger"
                                 data-dismiss="modal"
-                                //onclick={}
                               >
                                 Close
-                              </button>
-                              <button
-                                type="submit"
-                                className="btn btn-outline-dark"
-
-                                //data-dismiss="modal"
-                              >
-                                Create
                               </button>
                             </div>
                           </form>
@@ -409,9 +424,12 @@ export default class Chat extends Component {
             </div>
           </div>
         </div>
-        <div className="block-right">
-          {window}
-        </div>
+        <div className="block-right">{window}</div>
+        {this.state.isLoading ? (
+          <div className="Loading">
+            <div className="loader " />
+          </div>
+        ) : null}
       </div>
     );
   }
