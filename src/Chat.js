@@ -29,6 +29,7 @@ export default class Chat extends Component {
     this.submitMessage = this.submitMessage.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.onRoomClick = this.onRoomClick.bind(this);
+    this.joinInRoom = this.joinInRoom.bind(this);
   }
 
   handleInputChange = e => {
@@ -78,7 +79,22 @@ export default class Chat extends Component {
     ).scrollHeight;
   }
 
-  fetch() {
+  fetchChatRoom() {
+    axios({
+      method: "get",
+      url: host + "/api/room/getroomlist/?userID=" + this.state.userID
+    }).then(res => {
+      console.log(res);
+      const joinedRoom = res.data.data.joinedRoom;
+      const unJoinRooms = res.data.data.notJoinedRoom;
+      this.setState({ joinedRooms: joinedRoom, unJoinRooms: unJoinRooms });
+      console.log(this.state.unJoinRooms);
+      console.log(this.state.joinedRooms);
+    });
+  }
+
+  async fetchUserData() {
+
     let user = window.localStorage.getItem("userName");
     this.setState({ userName: user }, () => {
       axios({
@@ -141,6 +157,24 @@ export default class Chat extends Component {
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
+  joinInRoom(roomID) {
+    // console.log(this.state.userID);
+    let joinInRoom = {
+      userID: this.state.userID,
+      roomID: roomID
+    };
+    console.log(joinInRoom);
+    axios({
+      method: "post",
+      url: host + "/api/room/join",
+      data: joinInRoom
+    }).then(res => {
+      console.log(res.data);
+      this.fetchChatRoom();
+      // return this.props.history.push("/chat");
+    });
+  }
+
   onRoomClick(roomId) {
     if(this.state.currentRoom) {
       this.socket.emit('leaveRoom', this.state.currentRoom)
@@ -155,9 +189,15 @@ export default class Chat extends Component {
     this.setState({currentRoom: null})
   }
 
+  onLeaveClick() {
+    this.socket.emit("leaveRoomPermanantly", this.state.currentRoom);
+    this.setState({ currentRoom: null });
+  }
+
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
-    const { chats, joinedRooms,currentRoom } = this.state;
+
+    const { chats, joinedRooms,currentRoom, unJoinRooms } = this.state;
     console.log(currentRoom)
     let window = currentRoom?(
         <div className="chatroom">
@@ -182,6 +222,7 @@ export default class Chat extends Component {
     ):(
       <img src='http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg' style={{'width': '0%', 'height': '0%'}}/>
     )
+
     return (
       <div className="boxChat">
         <div className="block-left">
@@ -277,17 +318,30 @@ export default class Chat extends Component {
               <div className="join">
                 <p className="headGroup">Joined Group</p>
                 {joinedRooms.map(room => (
-                  <GrChat roomDetail={room} onRoomClick={this.onRoomClick} />
+                  <GrChat
+                    roomDetail={room}
+                    onRoomClick={this.onRoomClick}
+                    isJoined={true}
+                  />
                 ))}
               </div>
               <div className="list">
                 <p className="headGroup">Group List </p>
+                {unJoinRooms.map(room => (
+                  <GrChat
+                    roomDetail={room}
+                    isJoined={false}
+                    onRoomClick={this.joinInRoom}
+                  />
+                ))}
               </div>
             </div>
           </div>
         </div>
         <div className="block-right">
+
           {window}
+
         </div>
       </div>
     );
