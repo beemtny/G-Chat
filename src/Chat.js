@@ -204,44 +204,46 @@ export default class Chat extends Component {
   }
 
   async updateLastesRead() {
-    const data = {
-      userID: this.state.userID,
-      roomID: this.state.currentRoom,
-      lastestReadID: this.state.lastestRead
+    if (this.state.currentRoom) {
+      console.log('updatelatestread')
+      const data = {
+        userID: this.state.userID,
+        roomID: this.state.currentRoom,
+        lastestReadID: this.state.newLastestRead
+      }
+      console.log('update: '+JSON.stringify(data))
+      return axios({
+        method: "post",
+        url: host + "/api/user/updatelatestread",
+        data: data
+      })
+    }else{
+      console.log('not updatelatestread')
+      return axios({
+        method: "get",
+        url: host + "/"
+      })
     }
-    console.log('update: '+data)
-    return axios({
-      method: "post",
-      url: host + "/api/user/updatelatestread",
-      data: data
-    })
   }
 
   onRoomClick(room) {
-    const roomId = room.room._id
-    const lastestRead = room.lastestRead === ""?-1:room.lastestRead
     if (this.state.currentRoom) {
       this.socket.emit("leaveRoom", this.state.currentRoom);
     }
     //load message to chats
-    // this.updateLastesRead()
-    // .then(() => {
-    //   this.setState({
-    //     currentRoom: roomId,
-    //     lastestRead: lastestRead
-    //   }, () => {
-    //     this.fetchMessage()
-    //   })
-    //   this.socket.emit('joinRoom', roomId)
-    // })
-
-    this.setState({
-      currentRoom: roomId,
-      lastestRead: lastestRead
-    }, () => {
-      this.fetchMessage()
+    this.updateLastesRead()
+    .then(() => {
+      const roomId = room.room._id
+      const lastestRead = room.lastestRead === ""?-1:room.lastestRead
+      this.setState({
+        currentRoom: roomId,
+        lastestRead: lastestRead
+      }, () => {
+        this.fetchMessage()
+        this.fetchChatRoom()
+      })
+      this.socket.emit('joinRoom', roomId)
     })
-    this.socket.emit('joinRoom', roomId)
   }
 
   onLeaveClick() {
