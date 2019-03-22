@@ -7,6 +7,7 @@ import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
 
+
 // const host = "http://localhost:8000";
 const host = "https://aqueous-plateau-79715.herokuapp.com";
 
@@ -179,7 +180,7 @@ export default class Chat extends Component {
           </form>
         </div>
     ):(
-      <img src='http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg' style={{'width': '100%', 'height': '100%'}}/>
+      <img src='http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg' style={{'width': '0%', 'height': '0%'}}/>
     )
     return (
       <div className="boxChat">
