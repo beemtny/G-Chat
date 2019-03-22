@@ -7,16 +7,14 @@ import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
 
-// const host = "http://localhost:8000";
-const host = "https://aqueous-plateau-79715.herokuapp.com";
+const host = "http://localhost:8000";
+// const host = "https://aqueous-plateau-79715.herokuapp.com";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient(
-      "https://aqueous-plateau-79715.herokuapp.com/"
-    );
-    // this.socket = socketIOClient('http://localhost:8000')
+    // this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       userName: null,
       userID: null,
@@ -56,14 +54,12 @@ export default class Chat extends Component {
       roomName: this.state.grName,
       userID: this.state.userID
     };
-    console.log(createNewRoom);
     axios({
       method: "post",
       url: host + "/api/room/createroom",
       data: createNewRoom
     })
       .then(res => {
-        console.log(res.data);
         this.fetchChatRoom();
       })
       .then(() => {
@@ -96,8 +92,8 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/room/getroomlist/?userID=" + this.state.userID
     }).then(res => {
-      console.log(res);
-      const joinedRoom = res.data.data.joinedRoom;
+      console.log('fetch chat room')
+      const joinedRoom = res.data.data.joinedRoom.sort(function(a, b){return a.room._id - b.room._id});
       const unJoinRooms = res.data.data.notJoinedRoom;
       this.setState({
         joinedRooms: joinedRoom,
@@ -114,12 +110,13 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/user/" + this.state.userName
     }).then(async res => {
-      console.log(res);
+      console.log('fetch user data')
       this.setState({ userID: res.data.id });
     });
   }
 
   fetchMessage() {
+    console.log(this.state.currentRoom)
     const data = {
       roomID: this.state.currentRoom,
       lastestReadID: this.state.lastestRead
@@ -138,14 +135,16 @@ export default class Chat extends Component {
           content: <p>{message.text}</p>,
           username: message.sender.name,
           isRead: isRead,
+          lastestRead: this.state.lastestRead
         });
       })
-      console.log(messageList[messageList.length-1])
       this.setState({
         chats: chats,
         newLastestRead: messageList[messageList.length-1]._id,
         isLoading: false
       })
+      console.log(chats)
+      console.log('fetch message list')
     });
   }
 
@@ -164,12 +163,14 @@ export default class Chat extends Component {
               userID: data.userId,
               content: <p>{data.text}</p>,
               username: data.username,
-              isRead: data.isRead
+              isRead: data.isRead,
+              lastestRead: data.lastestRead
             }
-          ])
+          ]),
+          newLastestRead: data.lastestRead
         },
         () => {
-          ReactDOM.findDOMNode(this.refs.msg).value = "";
+          console.log("lastestRead" + this.state.newLastestRead)
         }
       );
     });
@@ -199,13 +200,11 @@ export default class Chat extends Component {
       userID: this.state.userID,
       roomID: roomID
     };
-    console.log(joinInRoom);
     axios({
       method: "post",
       url: host + "/api/room/join",
       data: joinInRoom
     }).then(res => {
-      console.log(res.data);
       this.fetchChatRoom();
       // return this.props.history.push("/chat");
     });
@@ -213,20 +212,17 @@ export default class Chat extends Component {
 
   async updateLastesRead() {
     if (this.state.currentRoom) {
-      console.log('updatelatestread')
       const data = {
         userID: this.state.userID,
         roomID: this.state.currentRoom,
         lastestReadID: this.state.newLastestRead
       }
-      console.log('update: '+JSON.stringify(data))
       return axios({
         method: "post",
         url: host + "/api/user/updatelatestread",
         data: data
       })
     }else{
-      console.log('not updatelatestread')
       return axios({
         method: "get",
         url: host + "/"
@@ -243,10 +239,12 @@ export default class Chat extends Component {
     .then(() => {
       const roomId = room.room._id
       const lastestRead = room.lastestRead === ""?-1:room.lastestRead
+      console.log(room)
       this.setState({
         currentRoom: roomId,
         lastestRead: lastestRead
       }, () => {
+        console.log(this.state.currentRoom)
         this.fetchMessage()
         this.fetchChatRoom()
       })
