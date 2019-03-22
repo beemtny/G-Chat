@@ -13,7 +13,9 @@ const host = "https://aqueous-plateau-79715.herokuapp.com";
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    this.socket = socketIOClient(
+      "https://aqueous-plateau-79715.herokuapp.com/"
+    );
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
       userName: null,
@@ -26,6 +28,7 @@ export default class Chat extends Component {
       messages: "",
       roomId: null,
       currentRoom: null,
+      currentRoomName: "ChatRoom",
       lastestRead: null,
       isLoading: false,
       newLastestRead: null
@@ -92,8 +95,10 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/room/getroomlist/?userID=" + this.state.userID
     }).then(res => {
-      console.log('fetch chat room')
-      const joinedRoom = res.data.data.joinedRoom.sort(function(a, b){return a.room._id - b.room._id});
+      console.log("fetch chat room");
+      const joinedRoom = res.data.data.joinedRoom.sort(function(a, b) {
+        return a.room._id - b.room._id;
+      });
       const unJoinRooms = res.data.data.notJoinedRoom;
       this.setState({
         joinedRooms: joinedRoom,
@@ -110,13 +115,13 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/user/" + this.state.userName
     }).then(async res => {
-      console.log('fetch user data')
+      console.log("fetch user data");
       this.setState({ userID: res.data.id });
     });
   }
 
   fetchMessage() {
-    console.log(this.state.currentRoom)
+    console.log(this.state.currentRoom);
     const data = {
       roomID: this.state.currentRoom,
       lastestReadID: this.state.lastestRead
@@ -129,7 +134,7 @@ export default class Chat extends Component {
       const messageList = res.data.data;
       let chats = [];
       messageList.map(message => {
-        const isRead = message._id<=this.state.lastestRead; //calculate
+        const isRead = message._id <= this.state.lastestRead; //calculate
         chats.push({
           userID: message.sender._id,
           content: <p>{message.text}</p>,
@@ -137,18 +142,18 @@ export default class Chat extends Component {
           isRead: isRead,
           lastestRead: this.state.lastestRead
         });
-      })
-      let newLastestRead = ""
-      if(messageList.length>0){
-        newLastestRead = messageList[messageList.length-1]._id
+      });
+      let newLastestRead = "";
+      if (messageList.length > 0) {
+        newLastestRead = messageList[messageList.length - 1]._id;
       }
       this.setState({
         chats: chats,
         newLastestRead: newLastestRead,
         isLoading: false
-      })
-      console.log(chats)
-      console.log('fetch message list')
+      });
+      console.log(chats);
+      console.log("fetch message list");
     });
   }
 
@@ -174,7 +179,7 @@ export default class Chat extends Component {
           newLastestRead: data.lastestRead
         },
         () => {
-          console.log("lastestRead" + this.state.newLastestRead)
+          console.log("lastestRead" + this.state.newLastestRead);
         }
       );
     });
@@ -220,17 +225,17 @@ export default class Chat extends Component {
         userID: this.state.userID,
         roomID: this.state.currentRoom,
         lastestReadID: this.state.newLastestRead
-      }
+      };
       return axios({
         method: "post",
         url: host + "/api/user/updatelatestread",
         data: data
-      })
-    }else{
+      });
+    } else {
       return axios({
         method: "get",
         url: host + "/"
-      })
+      });
     }
   }
 
@@ -239,21 +244,25 @@ export default class Chat extends Component {
       this.socket.emit("leaveRoom", this.state.currentRoom);
     }
     //load message to chats
-    this.updateLastesRead()
-    .then(() => {
-      const roomId = room.room._id
-      const lastestRead = room.lastestRead === ""?-1:room.lastestRead
-      console.log(room)
-      this.setState({
-        currentRoom: roomId,
-        lastestRead: lastestRead
-      }, () => {
-        console.log(this.state.currentRoom)
-        this.fetchMessage()
-        this.fetchChatRoom()
-      })
-      this.socket.emit('joinRoom', roomId)
-    })
+    this.updateLastesRead().then(() => {
+      const roomId = room.room._id;
+      const lastestRead = room.lastestRead === "" ? -1 : room.lastestRead;
+      console.log(room.room.roomName);
+      let currentRoomName = room.room.roomName;
+      this.setState(
+        {
+          currentRoom: roomId,
+          lastestRead: lastestRead,
+          currentRoomName: currentRoomName
+        },
+        () => {
+          console.log(this.state.currentRoom);
+          this.fetchMessage();
+          this.fetchChatRoom();
+        }
+      );
+      this.socket.emit("joinRoom", roomId);
+    });
   }
 
   onLeaveClick() {
@@ -284,7 +293,7 @@ export default class Chat extends Component {
     const { chats, joinedRooms, unJoinRooms, currentRoom, grName } = this.state;
     let window = currentRoom ? (
       <div className="chatroom">
-        <h3>ChatRoom</h3>
+        <h3>{this.state.currentRoomName}</h3>
         <ul className="chats" ref="chats">
           {chats.map((chat, index) => (
             <Message chat={chat} user={this.state.userID} key={index} />
