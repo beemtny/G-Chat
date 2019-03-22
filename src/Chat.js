@@ -27,7 +27,8 @@ export default class Chat extends Component {
       unJoinRooms: [],
       messages: "",
       roomId: null,
-      currentRoom: null
+      currentRoom: null,
+      lastestRead: null
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.submitMessage = this.submitMessage.bind(this);
@@ -91,12 +92,10 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/room/getroomlist/?userID=" + this.state.userID
     }).then(res => {
-      console.log(res);
+      console.log(res)
       const joinedRoom = res.data.data.joinedRoom;
       const unJoinRooms = res.data.data.notJoinedRoom;
       this.setState({ joinedRooms: joinedRoom, unJoinRooms: unJoinRooms });
-      console.log(this.state.unJoinRooms);
-      console.log(this.state.joinedRooms);
     });
   }
 
@@ -107,14 +106,36 @@ export default class Chat extends Component {
       method: "get",
       url: host + "/api/user/" + this.state.userName
     }).then(async res => {
+      console.log(res)
       this.setState({ userID: res.data.id });
-      console.log(this.state.userName);
-      console.log(this.state.userID);
     });
   }
 
   fetchMessage() {
-    
+    const data = {
+      roomID: this.state.currentRoom,
+      lastestReadID: this.state.lastestRead
+    }
+    axios({
+      method: "post",
+      url: host + "/api/room/fetchmessage",
+      data: data
+    }).then(res => {
+      const messageList = res.data.data;
+      let chats = [];
+      messageList.map(message => {
+        console.log(message)
+        const isRead = true; //calculate
+        chats.push({
+          userID: message.sender,
+          content: <p>{message.text}</p>,
+          username: 'dummy username',
+          isRead: isRead
+        });
+      })
+      console.log(chats);
+      this.setState({chats: chats})
+    });
   }
 
   componentDidMount = () => {
@@ -129,8 +150,10 @@ export default class Chat extends Component {
         {
           chats: this.state.chats.concat([
             {
-              username: this.state.userName,
-              content: <p>{data.text}</p>
+              userID: data.userId,
+              content: <p>{data.text}</p>,
+              username: data.username,
+              isRead: data.isRead
             }
           ])
         },
@@ -143,13 +166,20 @@ export default class Chat extends Component {
 
   submitMessage(e) {
     e.preventDefault();
-    let data = {
-      text: ReactDOM.findDOMNode(this.refs.msg).value,
-      roomId: this.state.currentRoom,
-      userId: this.state.userID
-    };
-    this.socket.emit("message", data);
-    ReactDOM.findDOMNode(this.refs.msg).value = "";
+    const text = ReactDOM.findDOMNode(this.refs.msg).value
+    if(text !== ""){
+      let data = {
+        text: ReactDOM.findDOMNode(this.refs.msg).value,
+        roomId: this.state.currentRoom,
+        userId: this.state.userID,
+        username: this.state.userName,
+        isRead: true
+      };
+      this.socket.emit("message", data);
+      ReactDOM.findDOMNode(this.refs.msg).value = "";
+    }else {
+      console.log('message not send')
+    }
   }
 
   joinInRoom(roomID) {
@@ -170,13 +200,19 @@ export default class Chat extends Component {
     });
   }
 
-  onRoomClick(roomId) {
-    console.log(roomId);
+  onRoomClick(room) {
+    const roomId = room.room._id
+    const lastestRead = room.lastestRead === ""?-1:room.lastestRead
     if (this.state.currentRoom) {
       this.socket.emit("leaveRoom", this.state.currentRoom);
     }
     //load message to chats
-    this.setState({currentRoom: roomId})
+    this.setState({
+      currentRoom: roomId,
+      lastestRead: lastestRead
+    }, () => {
+      this.fetchMessage()
+    })
     this.socket.emit('joinRoom', roomId)
   }
 
