@@ -25,7 +25,6 @@ export default class GrChat extends Component {
             className="btn btn-outline-success float-right ml-auto "
             onClick={() => {
               onRoomClick(roomDetail._id);
-              // console.log(roomDetail._id);
             }}
           >
             Join

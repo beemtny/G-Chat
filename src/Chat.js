@@ -7,22 +7,26 @@ import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
 
-
 // const host = "http://localhost:8000";
 const host = "https://aqueous-plateau-79715.herokuapp.com";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
+    this.socket = socketIOClient(
+      "https://aqueous-plateau-79715.herokuapp.com/"
+    );
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
-      userName: null,
-      userID: null,
-      grName: null,
+      userName: "userName",
+      userID: "userID",
+      grName: "grName",
+      isCreate: false,
       chats: [],
       joinedRooms: [],
       unJoinRooms: [],
+      messages: "",
+      roomId: null,
       currentRoom: null
     };
     this.onSubmit = this.onSubmit.bind(this);
@@ -56,7 +60,7 @@ export default class Chat extends Component {
       data: createNewRoom
     }).then(res => {
       console.log(res.data);
-      this.fetch();
+      this.fetchChatRoom();
       // return this.props.history.push("/chat");
     });
 
@@ -64,19 +68,22 @@ export default class Chat extends Component {
   };
 
   componentWillMount() {
-    this.fetch();
+    this.fetchUserData().then(() => {
+      this.fetchChatRoom();
+    });
   }
+  //Scroll ลง
 
   componentDidUpdate() {
-    if(this.state.currentRoom){
-      this.scrollToBot();
-    }
+    this.scrollToBot();
   }
 
   scrollToBot() {
-    ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(
-      this.refs.chats
-    ).scrollHeight;
+    if(this.state.currentRoom) {
+      ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(
+        this.refs.chats
+      ).scrollHeight;
+    }
   }
 
   fetchChatRoom() {
@@ -94,31 +101,15 @@ export default class Chat extends Component {
   }
 
   async fetchUserData() {
-
     let user = window.localStorage.getItem("userName");
-    this.setState({ userName: user }, () => {
-      axios({
-        method: "get",
-        url: host + "/api/user/" + this.state.userName
-      })
-        .then(res => {
-          this.setState({ userID: res.data.id });
-        })
-        .then(() => {
-          console.log(this.state.userName);
-          console.log(this.state.userID);
-
-          axios({
-            method: "get",
-            url:
-              host + "/api/room/getroomlist/?userID=" + this.state.userID
-          }).then(res => {
-            console.log(res);
-            const joinedRoom = res.data.data.joinedRoom;
-            this.setState({ joinedRooms: joinedRoom });
-            console.log(this.state.joinedRooms);
-          });
-        });
+    await this.setState({ userName: user });
+    return axios({
+      method: "get",
+      url: host + "/api/user/" + this.state.userName
+    }).then(async res => {
+      this.setState({ userID: res.data.id });
+      console.log(this.state.userName);
+      console.log(this.state.userID);
     });
   }
 
@@ -152,8 +143,8 @@ export default class Chat extends Component {
       text: ReactDOM.findDOMNode(this.refs.msg).value,
       roomId: this.state.currentRoom,
       userId: this.state.userID
-    }
-    this.socket.emit('message', data)
+    };
+    this.socket.emit("message", data);
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
@@ -176,8 +167,9 @@ export default class Chat extends Component {
   }
 
   onRoomClick(roomId) {
-    if(this.state.currentRoom) {
-      this.socket.emit('leaveRoom', this.state.currentRoom)
+    console.log(roomId);
+    if (this.state.currentRoom) {
+      this.socket.emit("leaveRoom", this.state.currentRoom);
     }
     //load message to chats
     this.setState({currentRoom: roomId})
@@ -188,21 +180,20 @@ export default class Chat extends Component {
     this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
     const data = {
       userID: this.state.userID,
-      rooID: this.state.roomId
+      roomID: this.state.currentRoom
     }
+    console.log(data)
     axios({
       method: "post",
-      url: host + "/api/room/leave22",
+      url: host + "/api/room/leave",
       data: data
-    }).then(() => {
-      console.log('success')
-      this.setState({currentRoom: null})
+    }).then((res) => {
+      if(res.data.confirmation === 'success') {
+        this.setState({currentRoom: null})
+      }
+    }).catch(() => {
+      console.log('err')
     })
-  }
-
-  onLeaveClick() {
-    this.socket.emit("leaveRoomPermanantly", this.state.currentRoom);
-    this.setState({ currentRoom: null });
   }
 
   render() {
@@ -349,9 +340,7 @@ export default class Chat extends Component {
           </div>
         </div>
         <div className="block-right">
-
           {window}
-
         </div>
       </div>
     );
