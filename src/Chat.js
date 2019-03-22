@@ -7,26 +7,22 @@ import GrChat from "./component/GrChat";
 import man from "./pic/man.svg";
 import axios from "axios";
 
+
 // const host = "http://localhost:8000";
 const host = "https://aqueous-plateau-79715.herokuapp.com";
 
 export default class Chat extends Component {
   constructor(props) {
     super(props);
-    this.socket = socketIOClient(
-      "https://aqueous-plateau-79715.herokuapp.com/"
-    );
+    this.socket = socketIOClient("https://aqueous-plateau-79715.herokuapp.com/");
     // this.socket = socketIOClient('http://localhost:8000')
     this.state = {
-      userName: "userName",
-      userID: "userID",
-      grName: "grName",
-      isCreate: false,
+      userName: null,
+      userID: null,
+      grName: null,
       chats: [],
       joinedRooms: [],
       unJoinRooms: [],
-      messages: "",
-      roomId: null,
       currentRoom: null
     };
     this.onSubmit = this.onSubmit.bind(this);
@@ -60,7 +56,7 @@ export default class Chat extends Component {
       data: createNewRoom
     }).then(res => {
       console.log(res.data);
-      this.fetchChatRoom();
+      this.fetch();
       // return this.props.history.push("/chat");
     });
 
@@ -68,18 +64,13 @@ export default class Chat extends Component {
   };
 
   componentWillMount() {
-    this.fetchUserData().then(() => {
-      this.fetchChatRoom();
-    });
-  }
-  //Scroll ลง
-
-  componentDidMount() {
-    this.scrollToBot();
+    this.fetch();
   }
 
   componentDidUpdate() {
-    this.scrollToBot();
+    if(this.state.currentRoom){
+      this.scrollToBot();
+    }
   }
 
   scrollToBot() {
@@ -103,15 +94,31 @@ export default class Chat extends Component {
   }
 
   async fetchUserData() {
+
     let user = window.localStorage.getItem("userName");
-    await this.setState({ userName: user });
-    return axios({
-      method: "get",
-      url: host + "/api/user/" + this.state.userName
-    }).then(async res => {
-      this.setState({ userID: res.data.id });
-      console.log(this.state.userName);
-      console.log(this.state.userID);
+    this.setState({ userName: user }, () => {
+      axios({
+        method: "get",
+        url: host + "/api/user/" + this.state.userName
+      })
+        .then(res => {
+          this.setState({ userID: res.data.id });
+        })
+        .then(() => {
+          console.log(this.state.userName);
+          console.log(this.state.userID);
+
+          axios({
+            method: "get",
+            url:
+              host + "/api/room/getroomlist/?userID=" + this.state.userID
+          }).then(res => {
+            console.log(res);
+            const joinedRoom = res.data.data.joinedRoom;
+            this.setState({ joinedRooms: joinedRoom });
+            console.log(this.state.joinedRooms);
+          });
+        });
     });
   }
 
@@ -145,8 +152,8 @@ export default class Chat extends Component {
       text: ReactDOM.findDOMNode(this.refs.msg).value,
       roomId: this.state.currentRoom,
       userId: this.state.userID
-    };
-    this.socket.emit("message", data);
+    }
+    this.socket.emit('message', data)
     ReactDOM.findDOMNode(this.refs.msg).value = "";
   }
 
@@ -169,12 +176,17 @@ export default class Chat extends Component {
   }
 
   onRoomClick(roomId) {
-    console.log(roomId);
-    if (this.state.currentRoom) {
-      this.socket.emit("leaveRoom", this.state.currentRoom);
+    if(this.state.currentRoom) {
+      this.socket.emit('leaveRoom', this.state.currentRoom)
     }
-    this.setState({ currentRoom: roomId });
-    this.socket.emit("joinRoom", roomId);
+    //load message to chats
+    this.setState({currentRoom: roomId})
+    this.socket.emit('joinRoom', roomId)
+  }
+
+  onLeaveClick() {
+    this.socket.emit('leaveRoomPermanantly', this.state.currentRoom)
+    this.setState({currentRoom: null})
   }
 
   onLeaveClick() {
@@ -184,7 +196,33 @@ export default class Chat extends Component {
 
   render() {
     //const username = "Job"; เปลี่ยน เป็น this.state.userName
-    const { chats, joinedRooms, unJoinRooms } = this.state;
+
+    const { chats, joinedRooms,currentRoom, unJoinRooms } = this.state;
+    console.log(currentRoom)
+    let window = currentRoom?(
+        <div className="chatroom">
+          <h3>ChatRoom</h3>
+          <ul className="chats" ref="chats">
+            {chats.map(chat => (
+              <Message chat={chat} user={this.state.userID} />
+            ))}
+          </ul>
+          <form className="input" onSubmit={e => this.submitMessage(e)}>
+            <input type="text" className="form-control m-1 ml-1" ref="msg" />
+            <button type="submit" className="btn btn-outline-secondary m-1">
+              {" "}
+              Submit{" "}
+            </button>
+            <button type="button" className="btn btn-outline-danger m-1" onClick={ () => this.onLeaveClick()}>
+              {" "}
+              Leave Group{" "}
+            </button>
+          </form>
+        </div>
+    ):(
+      <img src='http://www.khaosodenglish.com/wp-content/uploads/2016/12/201611301704572-20061002145931.jpg' style={{'width': '0%', 'height': '0%'}}/>
+    )
+
     return (
       <div className="boxChat">
         <div className="block-left">
@@ -301,30 +339,9 @@ export default class Chat extends Component {
           </div>
         </div>
         <div className="block-right">
-          {" "}
-          <div className="chatroom">
-            <h3>ChatRoom</h3>
-            <ul className="chats" ref="chats">
-              {chats.map(chat => (
-                <Message chat={chat} user={this.state.userID} />
-              ))}
-            </ul>
-            <form className="input" onSubmit={e => this.submitMessage(e)}>
-              <input type="text" className="form-control m-1 ml-1" ref="msg" />
-              <button type="submit" className="btn btn-outline-secondary m-1">
-                {" "}
-                Submit{" "}
-              </button>
-              <button
-                type="button"
-                className="btn btn-outline-danger m-1"
-                onClick={() => this.onLeaveClick()}
-              >
-                {" "}
-                Leave Group{" "}
-              </button>
-            </form>
-          </div>{" "}
+
+          {window}
+
         </div>
       </div>
     );
